@@ -1,88 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { wordpressApi, WPDocument } from "../services/wordpressApi";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface DocumentUploaderProps {
   onFileSelect: (file: File) => void;
 }
 
 const DocumentUploader = ({ onFileSelect }: DocumentUploaderProps) => {
-  const [isDragging, setIsDragging] = useState(false);
+  const [documents, setDocuments] = useState<WPDocument[]>([]);
+  const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
   const { toast } = useToast();
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setIsDragging(true);
-    } else if (e.type === "dragleave") {
-      setIsDragging(false);
-    }
-  };
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      const docs = await wordpressApi.getDocuments();
+      setDocuments(docs);
+    };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+    fetchDocuments();
+  }, []);
 
-    const files = Array.from(e.dataTransfer.files);
-    validateAndProcessFile(files[0]);
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    validateAndProcessFile(files[0]);
-  };
-
-  const validateAndProcessFile = (file: File) => {
-    if (!file) return;
-
-    if (file.type !== "application/pdf") {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload a PDF file",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Maximum file size is 10MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    onFileSelect(file);
+  const handleDocumentSelect = (documentId: number) => {
+    setSelectedDocuments(prev => {
+      if (prev.includes(documentId)) {
+        return prev.filter(id => id !== documentId);
+      }
+      return [...prev, documentId];
+    });
   };
 
   return (
-    <div
-      className={`w-full max-w-2xl mx-auto border-2 border-dashed rounded-lg p-12 text-center transition-colors
-        ${isDragging ? "border-primary bg-primary/5" : "border-gray-300"}
-        hover:border-primary hover:bg-primary/5`}
-      onDragEnter={handleDrag}
-      onDragLeave={handleDrag}
-      onDragOver={handleDrag}
-      onDrop={handleDrop}
-    >
-      <input
-        type="file"
-        id="file-upload"
-        className="hidden"
-        accept=".pdf"
-        onChange={handleFileInput}
-      />
-      <label
-        htmlFor="file-upload"
-        className="cursor-pointer"
-      >
-        <div className="text-gray-600">
-          <p className="mb-2">Drag and drop your PDF here, or click to browse</p>
-          <p className="text-sm text-gray-500">Maximum file size: 10MB</p>
-        </div>
-      </label>
+    <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+      <h2 className="text-lg font-semibold mb-4">Available Documents</h2>
+      <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+        {documents.map((doc) => (
+          <div key={doc.id} className="flex items-center space-x-4 py-2">
+            <Checkbox
+              id={`doc-${doc.id}`}
+              checked={selectedDocuments.includes(doc.id)}
+              onCheckedChange={() => handleDocumentSelect(doc.id)}
+            />
+            <label
+              htmlFor={`doc-${doc.id}`}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {doc.title.rendered}
+            </label>
+          </div>
+        ))}
+      </ScrollArea>
+      
+      {documents.length === 0 && (
+        <p className="text-center text-gray-500 mt-4">
+          No documents available. Please contact the administrator.
+        </p>
+      )}
     </div>
   );
 };
