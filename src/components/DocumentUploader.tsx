@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface DocumentUploaderProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (document: WPDocument) => void;
 }
 
 const DocumentUploader = ({ onFileSelect }: DocumentUploaderProps) => {
@@ -15,20 +15,29 @@ const DocumentUploader = ({ onFileSelect }: DocumentUploaderProps) => {
 
   useEffect(() => {
     const fetchDocuments = async () => {
-      const docs = await wordpressApi.getDocuments();
-      setDocuments(docs);
+      try {
+        const docs = await wordpressApi.getDocuments();
+        setDocuments(docs);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch documents. Please try again later.",
+          variant: "destructive",
+        });
+      }
     };
 
     fetchDocuments();
-  }, []);
+  }, [toast]);
 
-  const handleDocumentSelect = (documentId: number) => {
+  const handleDocumentSelect = (document: WPDocument) => {
     setSelectedDocuments(prev => {
-      if (prev.includes(documentId)) {
-        return prev.filter(id => id !== documentId);
+      if (prev.includes(document.id)) {
+        return prev.filter(id => id !== document.id);
       }
-      return [...prev, documentId];
+      return [...prev, document.id];
     });
+    onFileSelect(document);
   };
 
   return (
@@ -40,7 +49,7 @@ const DocumentUploader = ({ onFileSelect }: DocumentUploaderProps) => {
             <Checkbox
               id={`doc-${doc.id}`}
               checked={selectedDocuments.includes(doc.id)}
-              onCheckedChange={() => handleDocumentSelect(doc.id)}
+              onCheckedChange={() => handleDocumentSelect(doc)}
             />
             <label
               htmlFor={`doc-${doc.id}`}

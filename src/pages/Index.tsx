@@ -23,15 +23,10 @@ const Index = () => {
     setShowUploader(false);
   };
 
-  const handleFileChange = (document: WPDocument) => {
+  const handleFileSelect = (document: WPDocument) => {
     setSelectedDocuments(prev => [...prev, document]);
     setSelectedDocument(document);
     setShowUploader(false);
-  };
-
-  const handleDocumentPreview = (document: WPDocument) => {
-    setSelectedDocument(document);
-    setPageNumber(1);
   };
 
   return (
@@ -43,7 +38,7 @@ const Index = () => {
         </div>
 
         {showUploader ? (
-          <DocumentUploader onFileSelect={handleFileChange} />
+          <DocumentUploader onFileSelect={handleFileSelect} />
         ) : (
           <Button 
             variant="outline"
