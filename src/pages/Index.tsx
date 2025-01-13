@@ -4,14 +4,16 @@ import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { WPDocument } from "../services/wordpressApi";
+import { Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 const Index = () => {
+  const navigate = useNavigate();
   const [selectedDocuments, setSelectedDocuments] = useState<WPDocument[]>([]);
   const [selectedDocument, setSelectedDocument] = useState<WPDocument | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
@@ -32,9 +34,19 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col items-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900 mb-2">Document Q&A Platform</h1>
-          <p className="text-gray-600">Select documents and ask questions about the content</p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Document Q&A Platform</h1>
+            <p className="text-gray-600">Select documents and ask questions about the content</p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/settings')}
+            className="flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </Button>
         </div>
 
         {showUploader ? (

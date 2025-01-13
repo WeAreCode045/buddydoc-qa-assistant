@@ -1,9 +1,5 @@
 import axios from 'axios';
 
-// Replace with your WordPress site URL
-const WP_API_URL = 'https://your-wordpress-site.com/wp-json/wp/v2';
-const CUSTOM_API_URL = 'https://your-wordpress-site.com/wp-json/pdf-manager/v1';
-
 export interface WPDocument {
   id: number;
   title: {
@@ -18,10 +14,30 @@ export interface WPDocument {
   };
 }
 
+const getApiConfig = () => {
+  const apiUrl = localStorage.getItem('wp_api_url') || 'https://your-wordpress-site.com/wp-json/wp/v2';
+  const username = localStorage.getItem('wp_username');
+  const password = localStorage.getItem('wp_password');
+
+  const config = {
+    baseURL: apiUrl,
+    headers: {},
+  };
+
+  if (username && password) {
+    config.headers = {
+      Authorization: `Basic ${btoa(`${username}:${password}`)}`,
+    };
+  }
+
+  return config;
+};
+
 export const wordpressApi = {
   async getDocuments(): Promise<WPDocument[]> {
     try {
-      const response = await axios.get(`${WP_API_URL}/documents`);
+      const config = getApiConfig();
+      const response = await axios.get('/documents', config);
       return response.data;
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -31,7 +47,8 @@ export const wordpressApi = {
 
   async getDocumentById(id: number): Promise<WPDocument | null> {
     try {
-      const response = await axios.get(`${WP_API_URL}/documents/${id}`);
+      const config = getApiConfig();
+      const response = await axios.get(`/documents/${id}`, config);
       return response.data;
     } catch (error) {
       console.error('Error fetching document:', error);
