@@ -2,7 +2,6 @@ import axios from 'axios';
 import { WPDocument } from './types/wordpress';
 import { getApiConfig } from './utils/apiConfig';
 import { getWordPressData } from './wordpressIntegration';
-import { getAttachmentUrlByParent } from './utils/mediaUtils';
 
 export type { WPDocument };
 
@@ -43,34 +42,6 @@ export const wordpressApi = {
       }));
     } catch (error) {
       console.error('Error fetching documents:', error);
-      throw error;
-    }
-  },
-
-  async getDocumentById(id: number): Promise<WPDocument | null> {
-    try {
-      const { config } = getApiConfig();
-      const response = await axios.get(`/documents/${id}`, {
-        ...config,
-        headers: {
-          ...config.headers,
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-        withCredentials: false,
-      });
-
-      const pdfUrl = await getAttachmentUrlByParent(id, config);
-      
-      return {
-        id: response.data.id,
-        title: {
-          rendered: response.data.title.rendered
-        }
-      };
-    } catch (error) {
-      console.error('Error fetching document:', error);
       throw error;
     }
   }
