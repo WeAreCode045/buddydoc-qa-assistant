@@ -4,7 +4,7 @@ import { getApiConfig } from './utils/apiConfig';
 import { processPdfFile } from './utils/documentUtils';
 import { getWordPressData } from './wordpressIntegration';
 
-export { WPDocument };
+export type { WPDocument };
 
 export const wordpressApi = {
   async getDocuments(): Promise<WPDocument[]> {
