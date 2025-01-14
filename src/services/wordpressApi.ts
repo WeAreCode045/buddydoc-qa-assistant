@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getWordPressData } from './wordpressIntegration';
 
 export interface WPDocument {
   id: number;
@@ -10,7 +11,7 @@ export interface WPDocument {
   };
   pdf_url: string;
   acf: {
-    pdf_file: number[] | string; // Can be array of IDs or string URL
+    pdf_file: number[] | string;
   };
 }
 
@@ -18,6 +19,7 @@ const getApiConfig = () => {
   const apiUrl = localStorage.getItem('wp_api_url') || 'https://your-wordpress-site.com/wp-json/wp/v2';
   const username = localStorage.getItem('wp_username');
   const password = localStorage.getItem('wp_password');
+  const wpData = getWordPressData();
   
   // Extract base domain from API URL
   const baseDomain = apiUrl.split('/wp-json/wp/v2')[0];
@@ -27,7 +29,14 @@ const getApiConfig = () => {
     headers: {},
   };
 
-  if (username && password) {
+  // If running in WordPress, use nonce authentication
+  if (wpData.nonce) {
+    config.headers = {
+      'X-WP-Nonce': wpData.nonce,
+    };
+  } 
+  // Otherwise, fall back to basic auth
+  else if (username && password) {
     config.headers = {
       Authorization: `Basic ${btoa(`${username}:${password}`)}`,
     };
@@ -50,7 +59,14 @@ export const wordpressApi = {
   async getDocuments(): Promise<WPDocument[]> {
     try {
       const { config, baseDomain } = getApiConfig();
-      const response = await axios.get('/documents?per_page=100', config);
+      const wpData = getWordPressData();
+      
+      // If we have a post ID from WordPress, filter by it
+      const endpoint = wpData.postId 
+        ? `/documents?per_page=100&post=${wpData.postId}`
+        : '/documents?per_page=100';
+      
+      const response = await axios.get(endpoint, config);
       
       console.log('WordPress API Response:', response.data);
       
@@ -58,7 +74,6 @@ export const wordpressApi = {
       const processedDocs = await Promise.all(response.data.map(async (doc: WPDocument) => {
         console.log('Processing document:', doc);
         
-        // Check if doc.acf exists and pdf_file is an array
         if (!doc.acf?.pdf_file) {
           console.log('Document missing PDF file:', doc);
           return {
@@ -71,7 +86,7 @@ export const wordpressApi = {
 
         // Handle pdf_file as array of attachment IDs
         if (Array.isArray(doc.acf.pdf_file) && doc.acf.pdf_file.length > 0) {
-          const attachmentId = doc.acf.pdf_file[0]; // Get first attachment ID
+          const attachmentId = doc.acf.pdf_file[0];
           const pdfUrl = await getAttachmentUrl(attachmentId, config);
           
           return {
