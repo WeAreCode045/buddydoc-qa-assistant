@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ToastProvider } from "@/providers/ToastProvider";
-import Index from "@/pages/Index";
-import Settings from "@/pages/Settings";
+import { Toaster } from "@/components/ui/toaster";
+import Index from "./pages/Index";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
     <Router>
-      <ToastProvider />
+      <Toaster />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/settings" element={<Settings />} />
