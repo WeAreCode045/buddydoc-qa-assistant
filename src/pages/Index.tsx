@@ -31,6 +31,13 @@ const Index = () => {
     setShowUploader(false);
   };
 
+  // Helper function to get PDF URL from document
+  const getPdfUrl = (doc: WPDocument): string => {
+    if (!doc.acf?.pdf_file) return '';
+    if (typeof doc.acf.pdf_file === 'string') return doc.acf.pdf_file;
+    return ''; // Return empty string if pdf_file is not a string URL
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -64,7 +71,7 @@ const Index = () => {
         {selectedDocuments.length > 0 && (
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
-              {selectedDocument && selectedDocument.acf.pdf_file && (
+              {selectedDocument && getPdfUrl(selectedDocument) && (
                 <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                   <div className="mb-4 flex justify-between items-center">
                     <div className="flex gap-2">
@@ -90,7 +97,7 @@ const Index = () => {
                   
                   <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
                     <Document
-                      file={selectedDocument.acf.pdf_file}
+                      file={getPdfUrl(selectedDocument)}
                       onLoadSuccess={onDocumentLoadSuccess}
                       className="pdf-document"
                     >
