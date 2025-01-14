@@ -1,8 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import path from 'path'
-import { componentTagger } from "lovable-tagger"
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+import { componentTagger } from "lovable-tagger";
 
+// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -10,24 +11,12 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
+    mode === 'development' &&
+    componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      'lib': path.resolve(__dirname, './lib')
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    sourcemap: true,
-    rollupOptions: {
-      external: [
-        'openai',
-        '@radix-ui/react-scroll-area'
-      ],
-    },
-  },
-  optimizeDeps: {
-    include: ['react-pdf', 'openai', '@radix-ui/react-scroll-area'],
-  },
-}))
+}));
