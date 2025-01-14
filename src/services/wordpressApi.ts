@@ -20,7 +20,7 @@ export const wordpressApi = {
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       };
       
-      const endpoint = '/documents?per_page=100';
+      const endpoint = '/documents';
       
       console.log('Fetching documents with config:', {
         url: `${config.baseURL}${endpoint}`,
@@ -28,7 +28,7 @@ export const wordpressApi = {
       });
 
       const response = await axios.get(endpoint, {
-        baseURL: 'https://insightvve.nl/wp-json/wp/v2',
+        baseURL: config.baseURL,
         headers,
         withCredentials: false,
       });
