@@ -24,7 +24,7 @@ export const getApiConfig = (): ApiConfig => {
     config: {
       baseURL: apiUrl,
       headers,
-      withCredentials: true,
+      withCredentials: false,
     },
     baseDomain,
   };
