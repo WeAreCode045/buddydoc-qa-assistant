@@ -9,7 +9,7 @@ export type { WPDocument };
 export const wordpressApi = {
   async getDocuments(): Promise<WPDocument[]> {
     try {
-      const { config, baseDomain } = getApiConfig();
+      const { config } = getApiConfig();
       const wpData = getWordPressData();
       
       // Add specific headers for CORS
@@ -20,26 +20,33 @@ export const wordpressApi = {
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       };
       
-      const endpoint = wpData.postId 
-        ? '/documents?per_page=100&post=${wpData.postId}'
-        : '/documents?per_page=100';
+      const endpoint = '/documents?per_page=100';
       
       console.log('Fetching documents with config:', {
-        url: '${config.baseURL}${endpoint}',
+        url: `${config.baseURL}${endpoint}`,
         headers
       });
 
       const response = await axios.get(endpoint, {
-        ...config,
+        baseURL: 'https://insightvve.nl/wp-json/wp/v2',
         headers,
-        withCredentials: false, // Change to false since we're using '*' for CORS
+        withCredentials: false,
       });
 
       console.log('WordPress API Response:', response.data);
       
-      return Promise.all(
-        response.data.map((doc: WPDocument) => processPdfFile(doc, config, baseDomain))
-      );
+      // Map the response to include only id and title
+      return response.data.map((doc: any) => ({
+        id: doc.id,
+        title: {
+          rendered: doc.title.rendered
+        },
+        content: {
+          rendered: doc.content.rendered
+        },
+        acf: doc.acf || {},
+        pdf_url: doc.pdf_url || ''
+      }));
     } catch (error) {
       console.error('Error fetching documents:', error);
       throw error;
