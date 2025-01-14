@@ -16,15 +16,15 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    },
+    }
   },
   build: {
     sourcemap: true,
     rollupOptions: {
-      external: ["axios"],
+      external: [],
     },
   },
   optimizeDeps: {
-    include: ["axios"],
+    include: ['axios']
   },
 }));
