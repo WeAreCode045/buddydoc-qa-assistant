@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "../hooks/use-toast";
 import { wordpressApi, WPDocument } from "../services/wordpressApi";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "../components/ui/scroll-area";
+import { Checkbox } from "../components/ui/checkbox";
 
 interface DocumentUploaderProps {
   onFileSelect: (document: WPDocument) => void;
