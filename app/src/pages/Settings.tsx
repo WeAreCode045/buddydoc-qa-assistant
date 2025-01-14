@@ -1,5 +1,5 @@
-import WordPressSettings from "@/components/settings/WordPressSettings";
-import OpenAISettings from "@/components/settings/OpenAISettings";
+import WordPressSettings from "../components/settings/WordPressSettings";
+import OpenAISettings from "../components/settings/OpenAISettings";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";

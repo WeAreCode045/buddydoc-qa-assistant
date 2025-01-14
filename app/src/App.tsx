@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Index from "@/pages/Index";
-import Settings from "@/pages/Settings";
 import { ToastProvider } from "@/providers/ToastProvider";
+import Index from "./pages/Index";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
