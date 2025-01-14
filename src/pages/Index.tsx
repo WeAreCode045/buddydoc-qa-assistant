@@ -65,7 +65,7 @@ const Index = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
               {selectedDocument && selectedDocument.acf.pdf_file && (
-                <div className="bg-white rounded-lg shadow-sm p-4">
+                <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                   <div className="mb-4 flex justify-between items-center">
                     <div className="flex gap-2">
                       <Button
@@ -88,7 +88,7 @@ const Index = () => {
                     </p>
                   </div>
                   
-                  <div className="flex justify-center">
+                  <div className="flex justify-center overflow-auto max-h-[calc(100vh-300px)]">
                     <Document
                       file={selectedDocument.acf.pdf_file}
                       onLoadSuccess={onDocumentLoadSuccess}
