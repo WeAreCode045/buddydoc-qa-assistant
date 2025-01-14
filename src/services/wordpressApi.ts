@@ -19,6 +19,7 @@ interface ApiConfig {
   config: {
     baseURL: string;
     headers: Record<string, string>;
+    withCredentials: boolean;
   };
   baseDomain: string;
 }
@@ -32,7 +33,10 @@ const getApiConfig = (): ApiConfig => {
   
   const baseDomain = apiUrl.match(/(https?:\/\/[^\/]+)/)?.[1] || '';
 
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
   
   if (wpData.nonce) {
     headers['X-WP-Nonce'] = wpData.nonce;
@@ -44,6 +48,7 @@ const getApiConfig = (): ApiConfig => {
     config: {
       baseURL: apiUrl,
       headers,
+      withCredentials: true,
     },
     baseDomain,
   };
@@ -53,7 +58,13 @@ const getApiConfig = (): ApiConfig => {
 const getAttachmentUrlByParent = async (documentId: number, config: any): Promise<string> => {
   try {
     console.log('Fetching media for document ID:', documentId);
-    const response = await axios.get(`/media?parent=${documentId}`, config);
+    const response = await axios.get(`/media?parent=${documentId}`, {
+      ...config,
+      headers: {
+        ...config.headers,
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
     console.log('Media response:', response.data);
     
     if (Array.isArray(response.data) && response.data.length > 0) {
@@ -123,7 +134,13 @@ export const wordpressApi = {
         ? `/documents?per_page=100&post=${wpData.postId}`
         : '/documents?per_page=100';
       
-      const response = await axios.get(endpoint, config);
+      const response = await axios.get(endpoint, {
+        ...config,
+        headers: {
+          ...config.headers,
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
       console.log('WordPress API Response:', response.data);
       
       return Promise.all(
@@ -138,7 +155,13 @@ export const wordpressApi = {
   async getDocumentById(id: number): Promise<WPDocument | null> {
     try {
       const { config, baseDomain } = getApiConfig();
-      const response = await axios.get(`/documents/${id}`, config);
+      const response = await axios.get(`/documents/${id}`, {
+        ...config,
+        headers: {
+          ...config.headers,
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
       return processPdfFile(response.data, config, baseDomain);
     } catch (error) {
       console.error('Error fetching document:', error);
