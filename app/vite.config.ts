@@ -23,11 +23,17 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       external: [
         'openai',
-        '@radix-ui/react-scroll-area'
+        '@radix-ui/react-scroll-area',
+        'axios'
       ],
     },
   },
   optimizeDeps: {
-    include: ['react-pdf', 'openai', '@radix-ui/react-scroll-area'],
+    include: [
+      'react-pdf',
+      'openai',
+      '@radix-ui/react-scroll-area',
+      'axios'
+    ],
   },
 }))
