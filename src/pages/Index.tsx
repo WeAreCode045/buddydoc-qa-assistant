@@ -88,15 +88,16 @@ const Index = () => {
                     </p>
                   </div>
                   
-                  <div className="flex justify-center overflow-auto max-h-[calc(100vh-300px)]">
+                  <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
                     <Document
                       file={selectedDocument.acf.pdf_file}
                       onLoadSuccess={onDocumentLoadSuccess}
-                      className="max-w-full"
+                      className="pdf-document"
                     >
                       <Page 
                         pageNumber={pageNumber}
                         className="shadow-lg"
+                        width={Math.min(window.innerWidth * 0.6, 800)}
                         renderTextLayer={true}
                         renderAnnotationLayer={true}
                       />
