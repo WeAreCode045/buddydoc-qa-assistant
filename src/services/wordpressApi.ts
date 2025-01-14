@@ -21,11 +21,11 @@ export const wordpressApi = {
       };
       
       const endpoint = wpData.postId 
-        ? `/documents?per_page=100&post=${wpData.postId}`
+        ? '/documents?per_page=100&post=${wpData.postId}'
         : '/documents?per_page=100';
       
       console.log('Fetching documents with config:', {
-        url: `${config.baseURL}${endpoint}`,
+        url: '${config.baseURL}${endpoint}',
         headers
       });
 
