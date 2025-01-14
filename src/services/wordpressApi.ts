@@ -55,7 +55,12 @@ const getAttachmentUrl = async (attachmentId: number, config: any): Promise<stri
     console.log('Fetching attachment URL for ID:', attachmentId);
     const response = await axios.get(`/media/${attachmentId}`, config);
     console.log('Attachment response:', response.data);
-    return response.data.source_url || response.data.guid?.rendered || '';
+    
+    // Extract URL from guid.rendered
+    const pdfUrl = response.data.guid?.rendered || '';
+    console.log('Extracted PDF URL:', pdfUrl);
+    
+    return pdfUrl;
   } catch (error) {
     console.error(`Error fetching attachment ${attachmentId}:`, error);
     return '';
