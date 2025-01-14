@@ -12,8 +12,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Settings as SettingsIcon } from "lucide-react";
 
 const formSchema = z.object({
   apiUrl: z.string().url({ message: "Please enter a valid URL" }),
@@ -45,7 +46,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 space-y-8">
       <Card>
         <CardHeader>
           <CardTitle>WordPress API Settings</CardTitle>
@@ -110,6 +111,33 @@ export default function Settings() {
               <Button type="submit">Save Settings</Button>
             </form>
           </Form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>OpenAI API Settings</CardTitle>
+          <CardDescription>
+            Configure your OpenAI API key for document analysis
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              To use the AI features, you need to provide an OpenAI API key. 
+              You can get one from the OpenAI platform.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                onClick={() => window.open('https://platform.openai.com/api-keys', '_blank')}
+                className="w-fit"
+              >
+                <SettingsIcon className="mr-2 h-4 w-4" />
+                Get OpenAI API Key
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
