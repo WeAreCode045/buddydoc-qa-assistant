@@ -50,19 +50,21 @@ const getApiConfig = (): ApiConfig => {
 };
 
 // Media helpers
-const getAttachmentUrl = async (attachmentId: number, config: any): Promise<string> => {
+const getAttachmentUrlByParent = async (documentId: number, config: any): Promise<string> => {
   try {
-    console.log('Fetching attachment URL for ID:', attachmentId);
-    const response = await axios.get(`/media/${attachmentId}`, config);
-    console.log('Attachment response:', response.data);
+    console.log('Fetching media for document ID:', documentId);
+    const response = await axios.get(`/media?parent=${documentId}`, config);
+    console.log('Media response:', response.data);
     
-    // Extract URL from guid.rendered
-    const pdfUrl = response.data.guid?.rendered || '';
-    console.log('Extracted PDF URL:', pdfUrl);
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      const pdfUrl = response.data[0].guid?.rendered || '';
+      console.log('Extracted PDF URL:', pdfUrl);
+      return pdfUrl;
+    }
     
-    return pdfUrl;
+    return '';
   } catch (error) {
-    console.error(`Error fetching attachment ${attachmentId}:`, error);
+    console.error(`Error fetching media for document ${documentId}:`, error);
     return '';
   }
 };
@@ -73,21 +75,12 @@ const processPdfFile = async (
   config: any,
   baseDomain: string
 ): Promise<WPDocument> => {
-  if (!doc.acf?.pdf_file) {
-    console.log('Document missing PDF file:', doc);
-    return {
-      ...doc,
-      acf: { pdf_file: '' }
-    };
-  }
-
-  // Handle pdf_file as array of attachment IDs
-  if (Array.isArray(doc.acf.pdf_file) && doc.acf.pdf_file.length > 0) {
-    console.log('PDF file is an array:', doc.acf.pdf_file);
-    const attachmentId = doc.acf.pdf_file[0];
-    const pdfUrl = await getAttachmentUrl(attachmentId, config);
-    console.log('Retrieved PDF URL:', pdfUrl);
-    
+  console.log('Processing document:', doc);
+  
+  // Get PDF URL using the document ID
+  const pdfUrl = await getAttachmentUrlByParent(doc.id, config);
+  
+  if (pdfUrl) {
     return {
       ...doc,
       acf: {
@@ -97,9 +90,9 @@ const processPdfFile = async (
     };
   }
   
-  // Handle pdf_file as string URL
-  if (typeof doc.acf.pdf_file === 'string') {
-    const pdfUrl = doc.acf.pdf_file.startsWith('http')
+  // Fallback to existing pdf_file if it's a string URL
+  if (doc.acf?.pdf_file && typeof doc.acf.pdf_file === 'string') {
+    const url = doc.acf.pdf_file.startsWith('http')
       ? doc.acf.pdf_file
       : `${baseDomain}${doc.acf.pdf_file}`;
       
@@ -107,11 +100,12 @@ const processPdfFile = async (
       ...doc,
       acf: {
         ...doc.acf,
-        pdf_file: pdfUrl
+        pdf_file: url
       }
     };
   }
 
+  console.log('Document missing PDF file:', doc);
   return {
     ...doc,
     acf: { pdf_file: '' }
