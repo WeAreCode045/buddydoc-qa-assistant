@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings as SettingsIcon } from "lucide-react";
 
 const formSchema = z.object({
   apiKey: z.string().min(1, { message: "API Key is required" }),
@@ -35,7 +34,7 @@ export default function OpenAISettings() {
     
     toast({
       title: "Settings saved",
-      description: "Your OpenAI API key has been saved successfully.",
+      description: "Your OpenAI API settings have been saved successfully.",
     });
   }
 
@@ -44,7 +43,7 @@ export default function OpenAISettings() {
       <CardHeader>
         <CardTitle>OpenAI API Settings</CardTitle>
         <CardDescription>
-          Configure your OpenAI API key for document analysis
+          Configure your OpenAI API connection settings
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -60,25 +59,14 @@ export default function OpenAISettings() {
                     <Input type="password" placeholder="sk-..." {...field} />
                   </FormControl>
                   <FormDescription>
-                    Your OpenAI API key for document analysis
+                    Your OpenAI API key
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
             
-            <div className="flex flex-col gap-4">
-              <Button type="submit">Save API Key</Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => window.open('https://platform.openai.com/api-keys', '_blank')}
-                className="w-fit"
-              >
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                Get OpenAI API Key
-              </Button>
-            </div>
+            <Button type="submit">Save Settings</Button>
           </form>
         </Form>
       </CardContent>
