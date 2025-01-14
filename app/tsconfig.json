@@ -7,7 +7,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "lib/*": ["./src/lib/*"]
     },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
