@@ -22,6 +22,7 @@ const Index = () => {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [showUploader, setShowUploader] = useState(true);
+  const [pdfUrl, setPdfUrl] = useState<string>('');
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -32,13 +33,6 @@ const Index = () => {
     setSelectedDocuments(prev => [...prev, document]);
     setSelectedDocument(document);
     setShowUploader(false);
-  };
-
-  // Helper function to get PDF URL from document
-  const getPdfUrl = (doc: WPDocument): string => {
-    if (!doc.acf?.pdf_file) return '';
-    if (typeof doc.acf.pdf_file === 'string') return doc.acf.pdf_file;
-    return ''; // Return empty string if pdf_file is not a string URL
   };
 
   return (
@@ -74,7 +68,7 @@ const Index = () => {
         {selectedDocuments.length > 0 && (
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
-              {selectedDocument && getPdfUrl(selectedDocument) && (
+              {selectedDocument && pdfUrl && (
                 <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                   <div className="mb-4 flex justify-between items-center">
                     <div className="flex gap-2">
@@ -100,7 +94,7 @@ const Index = () => {
                   
                   <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
                     <Document
-                      file={getPdfUrl(selectedDocument)}
+                      file={pdfUrl}
                       onLoadSuccess={onDocumentLoadSuccess}
                       className="pdf-document"
                     >
