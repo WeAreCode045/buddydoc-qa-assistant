@@ -11,29 +11,21 @@ export const wordpressApi = {
       const { config } = getApiConfig();
       const wpData = getWordPressData();
       
-      const headers = {
-        ...config.headers,
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      };
-      
       const endpoint = '/documents';
       
       console.log('Fetching documents with config:', {
         url: `${config.baseURL}${endpoint}`,
-        headers
+        headers: config.headers
       });
 
       const response = await axios.get(endpoint, {
         baseURL: config.baseURL,
-        headers,
+        headers: config.headers,
         withCredentials: false,
       });
 
       console.log('WordPress API Response:', response.data);
       
-      // Map the response to include only id and title
       return response.data.map((doc: any) => ({
         id: doc.id,
         title: {
