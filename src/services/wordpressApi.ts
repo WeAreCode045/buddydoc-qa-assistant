@@ -21,8 +21,8 @@ const getApiConfig = () => {
   const password = localStorage.getItem('wp_password');
   const wpData = getWordPressData();
   
-  // Extract base domain from API URL
-  const baseDomain = apiUrl.split('/wp-json/wp/v2')[0];
+  // Extract base domain from API URL - handle both http and https
+  const baseDomain = apiUrl.match(/(https?:\/\/[^\/]+)/)?.[1] || '';
 
   const config = {
     baseURL: apiUrl,
@@ -89,17 +89,21 @@ export const wordpressApi = {
           const attachmentId = doc.acf.pdf_file[0];
           const pdfUrl = await getAttachmentUrl(attachmentId, config);
           
+          // Ensure PDF URL uses the correct domain
+          const fullPdfUrl = pdfUrl.startsWith('http') ? pdfUrl : `${baseDomain}${pdfUrl}`;
+          
           return {
             ...doc,
             acf: {
               ...doc.acf,
-              pdf_file: pdfUrl
+              pdf_file: fullPdfUrl
             }
           };
         }
         
         // If pdf_file is already a string URL
         if (typeof doc.acf.pdf_file === 'string') {
+          // Ensure PDF URL uses the correct domain
           const pdfUrl = doc.acf.pdf_file.startsWith('http')
             ? doc.acf.pdf_file
             : `${baseDomain}${doc.acf.pdf_file}`;
@@ -146,20 +150,24 @@ export const wordpressApi = {
 
       // Handle pdf_file as array of attachment IDs
       if (Array.isArray(doc.acf.pdf_file) && doc.acf.pdf_file.length > 0) {
-        const attachmentId = doc.acf.pdf_file[0]; // Get first attachment ID
+        const attachmentId = doc.acf.pdf_file[0];
         const pdfUrl = await getAttachmentUrl(attachmentId, config);
+        
+        // Ensure PDF URL uses the correct domain
+        const fullPdfUrl = pdfUrl.startsWith('http') ? pdfUrl : `${baseDomain}${pdfUrl}`;
         
         return {
           ...doc,
           acf: {
             ...doc.acf,
-            pdf_file: pdfUrl
+            pdf_file: fullPdfUrl
           }
         };
       }
       
       // If pdf_file is already a string URL
       if (typeof doc.acf.pdf_file === 'string') {
+        // Ensure PDF URL uses the correct domain
         const pdfUrl = doc.acf.pdf_file.startsWith('http')
           ? doc.acf.pdf_file
           : `${baseDomain}${doc.acf.pdf_file}`;
