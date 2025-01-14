@@ -40,21 +40,33 @@ export const wordpressApi = {
   async getDocuments(): Promise<WPDocument[]> {
     try {
       const { config, baseDomain } = getApiConfig();
-      const response = await axios.get('/documents', config);
+      // Using the correct endpoint for the custom post type 'documents'
+      const response = await axios.get('/documents?per_page=100', config);
+      
+      // Add console log to debug the response
+      console.log('WordPress API Response:', response.data);
       
       // Transform the response to include the full PDF URL
-      return response.data.map((doc: WPDocument) => ({
-        ...doc,
-        acf: {
-          ...doc.acf,
-          pdf_file: doc.acf.pdf_file.startsWith('http') 
-            ? doc.acf.pdf_file 
-            : `${baseDomain}${doc.acf.pdf_file}`
+      return response.data.map((doc: WPDocument) => {
+        console.log('Processing document:', doc);
+        if (!doc.acf || !doc.acf.pdf_file) {
+          console.log('Document missing PDF file:', doc);
+          return doc;
         }
-      }));
+        
+        return {
+          ...doc,
+          acf: {
+            ...doc.acf,
+            pdf_file: doc.acf.pdf_file.startsWith('http') 
+              ? doc.acf.pdf_file 
+              : `${baseDomain}${doc.acf.pdf_file}`
+          }
+        };
+      });
     } catch (error) {
       console.error('Error fetching documents:', error);
-      return [];
+      throw error; // Let the error bubble up to be handled by the component
     }
   },
 
@@ -63,6 +75,11 @@ export const wordpressApi = {
       const { config, baseDomain } = getApiConfig();
       const response = await axios.get(`/documents/${id}`, config);
       const doc = response.data;
+      
+      if (!doc.acf || !doc.acf.pdf_file) {
+        console.log('Document missing PDF file:', doc);
+        return doc;
+      }
       
       // Transform the document to include the full PDF URL
       return {
@@ -76,7 +93,7 @@ export const wordpressApi = {
       };
     } catch (error) {
       console.error('Error fetching document:', error);
-      return null;
+      throw error; // Let the error bubble up to be handled by the component
     }
   }
 };
