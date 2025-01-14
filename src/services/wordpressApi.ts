@@ -10,7 +10,7 @@ export interface WPDocument {
   };
   pdf_url: string;
   acf: {
-    pdf_file: string;
+    pdf_file: number[] | string; // Can be array of IDs or string URL
   };
 }
 
@@ -36,47 +36,80 @@ const getApiConfig = () => {
   return { config, baseDomain };
 };
 
+async function getAttachmentUrl(attachmentId: number, config: any): Promise<string> {
+  try {
+    const response = await axios.get(`/media/${attachmentId}`, config);
+    return response.data.source_url;
+  } catch (error) {
+    console.error(`Error fetching attachment ${attachmentId}:`, error);
+    return '';
+  }
+}
+
 export const wordpressApi = {
   async getDocuments(): Promise<WPDocument[]> {
     try {
       const { config, baseDomain } = getApiConfig();
-      // Using the correct endpoint for the custom post type 'documents'
       const response = await axios.get('/documents?per_page=100', config);
       
-      // Add console log to debug the response
       console.log('WordPress API Response:', response.data);
       
-      // Transform the response to include the full PDF URL
-      return response.data.map((doc: WPDocument) => {
+      // Process each document
+      const processedDocs = await Promise.all(response.data.map(async (doc: WPDocument) => {
         console.log('Processing document:', doc);
         
-        // Check if doc.acf and doc.acf.pdf_file exist
+        // Check if doc.acf exists and pdf_file is an array
         if (!doc.acf?.pdf_file) {
           console.log('Document missing PDF file:', doc);
           return {
             ...doc,
             acf: {
-              pdf_file: '' // Provide a default empty string if pdf_file is missing
+              pdf_file: ''
+            }
+          };
+        }
+
+        // Handle pdf_file as array of attachment IDs
+        if (Array.isArray(doc.acf.pdf_file) && doc.acf.pdf_file.length > 0) {
+          const attachmentId = doc.acf.pdf_file[0]; // Get first attachment ID
+          const pdfUrl = await getAttachmentUrl(attachmentId, config);
+          
+          return {
+            ...doc,
+            acf: {
+              ...doc.acf,
+              pdf_file: pdfUrl
             }
           };
         }
         
-        // Now we can safely use startsWith since we know pdf_file exists
-        const pdfUrl = doc.acf.pdf_file.startsWith('http') 
-          ? doc.acf.pdf_file 
-          : `${baseDomain}${doc.acf.pdf_file}`;
-        
+        // If pdf_file is already a string URL
+        if (typeof doc.acf.pdf_file === 'string') {
+          const pdfUrl = doc.acf.pdf_file.startsWith('http')
+            ? doc.acf.pdf_file
+            : `${baseDomain}${doc.acf.pdf_file}`;
+            
+          return {
+            ...doc,
+            acf: {
+              ...doc.acf,
+              pdf_file: pdfUrl
+            }
+          };
+        }
+
         return {
           ...doc,
           acf: {
-            ...doc.acf,
-            pdf_file: pdfUrl
+            pdf_file: ''
           }
         };
-      });
+      }));
+
+      return processedDocs;
     } catch (error) {
       console.error('Error fetching documents:', error);
-      throw error; // Let the error bubble up to be handled by the component
+      throw error;
     }
   },
 
@@ -91,26 +124,49 @@ export const wordpressApi = {
         return {
           ...doc,
           acf: {
-            pdf_file: '' // Provide a default empty string if pdf_file is missing
+            pdf_file: ''
+          }
+        };
+      }
+
+      // Handle pdf_file as array of attachment IDs
+      if (Array.isArray(doc.acf.pdf_file) && doc.acf.pdf_file.length > 0) {
+        const attachmentId = doc.acf.pdf_file[0]; // Get first attachment ID
+        const pdfUrl = await getAttachmentUrl(attachmentId, config);
+        
+        return {
+          ...doc,
+          acf: {
+            ...doc.acf,
+            pdf_file: pdfUrl
           }
         };
       }
       
-      // Now we can safely use startsWith since we know pdf_file exists
-      const pdfUrl = doc.acf.pdf_file.startsWith('http') 
-        ? doc.acf.pdf_file 
-        : `${baseDomain}${doc.acf.pdf_file}`;
-      
+      // If pdf_file is already a string URL
+      if (typeof doc.acf.pdf_file === 'string') {
+        const pdfUrl = doc.acf.pdf_file.startsWith('http')
+          ? doc.acf.pdf_file
+          : `${baseDomain}${doc.acf.pdf_file}`;
+          
+        return {
+          ...doc,
+          acf: {
+            ...doc.acf,
+            pdf_file: pdfUrl
+          }
+        };
+      }
+
       return {
         ...doc,
         acf: {
-          ...doc.acf,
-          pdf_file: pdfUrl
+          pdf_file: ''
         }
       };
     } catch (error) {
       console.error('Error fetching document:', error);
-      throw error; // Let the error bubble up to be handled by the component
+      throw error;
     }
   }
 };
