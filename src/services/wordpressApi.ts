@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { WPDocument } from './types/wordpress';
 import { getApiConfig } from './utils/apiConfig';
-import { processPdfFile } from './utils/documentUtils';
 import { getWordPressData } from './wordpressIntegration';
+import { getAttachmentUrlByParent } from './utils/mediaUtils';
 
 export type { WPDocument };
 
@@ -12,7 +12,6 @@ export const wordpressApi = {
       const { config } = getApiConfig();
       const wpData = getWordPressData();
       
-      // Add specific headers for CORS
       const headers = {
         ...config.headers,
         'Access-Control-Allow-Origin': '*',
@@ -40,12 +39,7 @@ export const wordpressApi = {
         id: doc.id,
         title: {
           rendered: doc.title.rendered
-        },
-        content: {
-          rendered: doc.content.rendered
-        },
-        acf: doc.acf || {},
-        pdf_url: doc.pdf_url || ''
+        }
       }));
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -55,7 +49,7 @@ export const wordpressApi = {
 
   async getDocumentById(id: number): Promise<WPDocument | null> {
     try {
-      const { config, baseDomain } = getApiConfig();
+      const { config } = getApiConfig();
       const response = await axios.get(`/documents/${id}`, {
         ...config,
         headers: {
@@ -66,7 +60,15 @@ export const wordpressApi = {
         },
         withCredentials: false,
       });
-      return processPdfFile(response.data, config, baseDomain);
+
+      const pdfUrl = await getAttachmentUrlByParent(id, config);
+      
+      return {
+        id: response.data.id,
+        title: {
+          rendered: response.data.title.rendered
+        }
+      };
     } catch (error) {
       console.error('Error fetching document:', error);
       throw error;

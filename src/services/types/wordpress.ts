@@ -3,13 +3,6 @@ export interface WPDocument {
   title: {
     rendered: string;
   };
-  content: {
-    rendered: string;
-  };
-  pdf_url: string;
-  acf: {
-    pdf_file: number[] | string;
-  };
 }
 
 export interface ApiConfig {
