@@ -48,41 +48,39 @@ export default function OpenAISettings() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="apiKey"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>API Key</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="sk-..." {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Your OpenAI API key for document analysis
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex flex-col gap-4">
-                <Button type="submit">Save API Key</Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => window.open('https://platform.openai.com/api-keys', '_blank')}
-                  className="w-fit"
-                >
-                  <SettingsIcon className="mr-2 h-4 w-4" />
-                  Get OpenAI API Key
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="apiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>API Key</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="sk-..." {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Your OpenAI API key for document analysis
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <div className="flex flex-col gap-4">
+              <Button type="submit">Save API Key</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => window.open('https://platform.openai.com/api-keys', '_blank')}
+                className="w-fit"
+              >
+                <SettingsIcon className="mr-2 h-4 w-4" />
+                Get OpenAI API Key
+              </Button>
+            </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

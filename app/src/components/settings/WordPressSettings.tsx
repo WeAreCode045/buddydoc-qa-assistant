@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle } from "lucide-react";
-import { isRunningInWordPress, getWordPressData } from "@/services/wordpressIntegration";
 
 const formSchema = z.object({
   apiUrl: z.string().url({ message: "Please enter a valid URL" }),
@@ -26,8 +25,7 @@ const formSchema = z.object({
 
 export default function WordPressSettings() {
   const { toast } = useToast();
-  const wpData = getWordPressData();
-  const isWP = isRunningInWordPress();
+  const isWP = false; // Placeholder for WordPress integration check
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,7 +55,7 @@ export default function WordPressSettings() {
           Configure your WordPress API connection settings
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
         <Alert variant={isWP ? "default" : "destructive"}>
           <div className="flex items-center gap-2">
             {isWP ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
@@ -66,20 +64,14 @@ export default function WordPressSettings() {
             </AlertTitle>
           </div>
           <AlertDescription>
-            {isWP ? (
-              <div className="mt-2 space-y-2">
-                <p>Current WordPress User ID: {wpData.userId}</p>
-                <p>Current User Name: {wpData.userName}</p>
-                <p>Current Post ID: {wpData.postId || 'N/A'}</p>
-              </div>
-            ) : (
-              "The app is running in standalone mode. Install it as a WordPress plugin to access WordPress data."
-            )}
+            {isWP 
+              ? "WordPress integration is active and working correctly."
+              : "The app is running in standalone mode. Install it as a WordPress plugin to access WordPress data."}
           </AlertDescription>
         </Alert>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6">
             <FormField
               control={form.control}
               name="apiUrl"
