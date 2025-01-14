@@ -26,13 +26,9 @@ class ReactAppPlugin {
     
     private function initializePlugin() {
         // Add any initialization code here
-        // For example, register custom post types, taxonomies, etc.
     }
     
     public function enqueueScripts() {
-        // Only load on a specific page/post type if needed
-        // if (!is_singular('your_post_type')) return;
-        
         $plugin_url = plugin_dir_url(dirname(__FILE__));
         
         // Enqueue main JS file
@@ -95,15 +91,5 @@ class ReactAppPlugin {
     
     public function renderShortcode($atts = array()) {
         return '<div id="root"></div>';
-    }
-    
-    // Example of adding a new method for additional functionality
-    public function registerCustomPostType() {
-        // Register a custom post type if needed
-    }
-    
-    // Example of adding an API endpoint
-    public function registerCustomEndpoint() {
-        // Register custom REST API endpoints if needed
     }
 }
