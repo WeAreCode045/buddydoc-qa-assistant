@@ -15,4 +15,7 @@ export default defineConfig({
       external: [],
     },
   },
+  optimizeDeps: {
+    include: ['react-pdf'],
+  },
 })
