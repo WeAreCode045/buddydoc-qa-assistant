@@ -49,18 +49,28 @@ export const wordpressApi = {
       // Transform the response to include the full PDF URL
       return response.data.map((doc: WPDocument) => {
         console.log('Processing document:', doc);
-        if (!doc.acf || !doc.acf.pdf_file) {
+        
+        // Check if doc.acf and doc.acf.pdf_file exist
+        if (!doc.acf?.pdf_file) {
           console.log('Document missing PDF file:', doc);
-          return doc;
+          return {
+            ...doc,
+            acf: {
+              pdf_file: '' // Provide a default empty string if pdf_file is missing
+            }
+          };
         }
+        
+        // Now we can safely use startsWith since we know pdf_file exists
+        const pdfUrl = doc.acf.pdf_file.startsWith('http') 
+          ? doc.acf.pdf_file 
+          : `${baseDomain}${doc.acf.pdf_file}`;
         
         return {
           ...doc,
           acf: {
             ...doc.acf,
-            pdf_file: doc.acf.pdf_file.startsWith('http') 
-              ? doc.acf.pdf_file 
-              : `${baseDomain}${doc.acf.pdf_file}`
+            pdf_file: pdfUrl
           }
         };
       });
@@ -76,19 +86,26 @@ export const wordpressApi = {
       const response = await axios.get(`/documents/${id}`, config);
       const doc = response.data;
       
-      if (!doc.acf || !doc.acf.pdf_file) {
+      if (!doc.acf?.pdf_file) {
         console.log('Document missing PDF file:', doc);
-        return doc;
+        return {
+          ...doc,
+          acf: {
+            pdf_file: '' // Provide a default empty string if pdf_file is missing
+          }
+        };
       }
       
-      // Transform the document to include the full PDF URL
+      // Now we can safely use startsWith since we know pdf_file exists
+      const pdfUrl = doc.acf.pdf_file.startsWith('http') 
+        ? doc.acf.pdf_file 
+        : `${baseDomain}${doc.acf.pdf_file}`;
+      
       return {
         ...doc,
         acf: {
           ...doc.acf,
-          pdf_file: doc.acf.pdf_file.startsWith('http') 
-            ? doc.acf.pdf_file 
-            : `${baseDomain}${doc.acf.pdf_file}`
+          pdf_file: pdfUrl
         }
       };
     } catch (error) {
