@@ -47,8 +47,10 @@ const getApiConfig = () => {
 
 async function getAttachmentUrl(attachmentId: number, config: any): Promise<string> {
   try {
+    console.log('Fetching attachment URL for ID:', attachmentId);
     const response = await axios.get(`/media/${attachmentId}`, config);
-    return response.data.source_url;
+    console.log('Attachment response:', response.data);
+    return response.data.source_url || response.data.guid?.rendered || '';
   } catch (error) {
     console.error(`Error fetching attachment ${attachmentId}:`, error);
     return '';
@@ -86,24 +88,22 @@ export const wordpressApi = {
 
         // Handle pdf_file as array of attachment IDs
         if (Array.isArray(doc.acf.pdf_file) && doc.acf.pdf_file.length > 0) {
+          console.log('PDF file is an array:', doc.acf.pdf_file);
           const attachmentId = doc.acf.pdf_file[0];
           const pdfUrl = await getAttachmentUrl(attachmentId, config);
-          
-          // Ensure PDF URL uses the correct domain
-          const fullPdfUrl = pdfUrl.startsWith('http') ? pdfUrl : `${baseDomain}${pdfUrl}`;
+          console.log('Retrieved PDF URL:', pdfUrl);
           
           return {
             ...doc,
             acf: {
               ...doc.acf,
-              pdf_file: fullPdfUrl
+              pdf_file: pdfUrl
             }
           };
         }
         
         // If pdf_file is already a string URL
         if (typeof doc.acf.pdf_file === 'string') {
-          // Ensure PDF URL uses the correct domain
           const pdfUrl = doc.acf.pdf_file.startsWith('http')
             ? doc.acf.pdf_file
             : `${baseDomain}${doc.acf.pdf_file}`;
@@ -150,24 +150,22 @@ export const wordpressApi = {
 
       // Handle pdf_file as array of attachment IDs
       if (Array.isArray(doc.acf.pdf_file) && doc.acf.pdf_file.length > 0) {
+        console.log('PDF file is an array:', doc.acf.pdf_file);
         const attachmentId = doc.acf.pdf_file[0];
         const pdfUrl = await getAttachmentUrl(attachmentId, config);
-        
-        // Ensure PDF URL uses the correct domain
-        const fullPdfUrl = pdfUrl.startsWith('http') ? pdfUrl : `${baseDomain}${pdfUrl}`;
+        console.log('Retrieved PDF URL:', pdfUrl);
         
         return {
           ...doc,
           acf: {
             ...doc.acf,
-            pdf_file: fullPdfUrl
+            pdf_file: pdfUrl
           }
         };
       }
       
       // If pdf_file is already a string URL
       if (typeof doc.acf.pdf_file === 'string') {
-        // Ensure PDF URL uses the correct domain
         const pdfUrl = doc.acf.pdf_file.startsWith('http')
           ? doc.acf.pdf_file
           : `${baseDomain}${doc.acf.pdf_file}`;
