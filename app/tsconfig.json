@@ -8,7 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "lib/*": ["./lib/*"]
+      "lib/*": ["./src/lib/*"]
     },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
