@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }: { mode: string }) => ({
   server: {
     host: "::",
     port: 8080,
@@ -19,12 +19,21 @@ export default defineConfig(({ mode }) => ({
     }
   },
   build: {
+    outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      external: [],
+      external: [
+        'pdfjs-dist/legacy/build/pdf.worker.entry.js',
+        'react-pdf/node_modules/pdfjs-dist/legacy/build/pdf.worker.entry.js'
+      ],
+      output: {
+        manualChunks: {
+          pdfjs: ['pdfjs-dist', 'react-pdf']
+        }
+      }
     },
   },
   optimizeDeps: {
-    include: ['axios']
+    include: ['axios', 'pdfjs-dist', 'react-pdf']
   },
 }));
