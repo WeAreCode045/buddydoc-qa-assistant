@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { WPDocument } from "../services/wordpressApi";
 import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
+import { getAttachmentUrlByParent, fetchPdfAsBlob } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -24,7 +24,7 @@ const Index = () => {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [showUploader, setShowUploader] = useState(true);
-  const [pdfUrl, setPdfUrl] = useState<string>('');
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -35,17 +35,19 @@ const Index = () => {
     setSelectedDocuments(prev => [...prev, document]);
     setSelectedDocument(document);
     
-    // Get the API config for making the media request
     const config = getApiConfig();
     
     try {
-      // Fetch the PDF URL using the document ID
-      const mediaUrl = await getAttachmentUrlByParent(document.id, config.config);
-      console.log('Retrieved PDF URL:', mediaUrl);
-      setPdfUrl(mediaUrl);
-      setShowUploader(false);
+      const pdfUrl = await getAttachmentUrlByParent(document.id, config.config);
+      console.log('Retrieved PDF URL:', pdfUrl);
+      
+      if (pdfUrl) {
+        const blob = await fetchPdfAsBlob(pdfUrl, config.config);
+        setPdfBlob(blob);
+        setShowUploader(false);
+      }
     } catch (error) {
-      console.error('Error fetching PDF URL:', error);
+      console.error('Error fetching PDF:', error);
     }
   };
 
@@ -82,7 +84,7 @@ const Index = () => {
         {selectedDocuments.length > 0 && (
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
-              {selectedDocument && pdfUrl && (
+              {selectedDocument && pdfBlob && (
                 <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                   <div className="mb-4 flex justify-between items-center">
                     <div className="flex gap-2">
@@ -108,7 +110,7 @@ const Index = () => {
                   
                   <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
                     <Document
-                      file={pdfUrl}
+                      file={pdfBlob}
                       onLoadSuccess={onDocumentLoadSuccess}
                       className="pdf-document"
                     >
