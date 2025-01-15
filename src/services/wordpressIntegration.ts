@@ -4,6 +4,8 @@ interface WordPressData {
   userEmail?: string;
   userName?: string;
   nonce?: string;
+  groupId?: string;
+  apiUrl?: string;
 }
 
 declare global {
@@ -20,6 +22,8 @@ export const getWordPressData = (): WordPressData => {
     userEmail: undefined,
     userName: undefined,
     nonce: undefined,
+    groupId: undefined,
+    apiUrl: undefined,
   };
 };
 

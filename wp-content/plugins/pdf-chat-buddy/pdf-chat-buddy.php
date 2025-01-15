@@ -59,18 +59,23 @@ class PDF_Chat_Buddy {
     
     public function enqueue_scripts() {
         if (bp_is_group()) {
+            // Enqueue the built React app
             wp_enqueue_script(
-                'pdf-chat-buddy',
-                PDF_CHAT_BUDDY_PLUGIN_URL . 'assets/js/pdf-chat-buddy.js',
-                array('jquery'),
+                'pdf-chat-buddy-react',
+                PDF_CHAT_BUDDY_PLUGIN_URL . 'dist/assets/index.js',
+                array(),
                 PDF_CHAT_BUDDY_VERSION,
                 true
             );
             
-            wp_localize_script('pdf-chat-buddy', 'pdfChatBuddySettings', array(
+            // Pass necessary data to the React app
+            wp_localize_script('pdf-chat-buddy-react', 'wpData', array(
                 'apiUrl' => rest_url('pdf-chat-buddy/v1'),
                 'nonce' => wp_create_nonce('wp_rest'),
-                'groupId' => bp_get_current_group_id()
+                'groupId' => bp_get_current_group_id(),
+                'userId' => get_current_user_id(),
+                'userEmail' => wp_get_current_user()->user_email,
+                'userName' => wp_get_current_user()->display_name
             ));
         }
     }
