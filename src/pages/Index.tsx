@@ -4,9 +4,9 @@ import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { WPDocument } from "../services/wordpressApi";
 import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { WPDocument } from "../services/wordpressApi";
 import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -41,6 +41,10 @@ const Index = () => {
       const pdfUrl = await getAttachmentUrlByParent(document.id, config.config);
       console.log('Retrieved PDF URL:', pdfUrl);
       
+      // Fetch the PDF and create a blob
+      const response = await fetch(pdfUrl);
+      const blob = await response.blob();
+      setPdfBlob(blob);
     } catch (error) {
       console.error('Error fetching PDF:', error);
     }
