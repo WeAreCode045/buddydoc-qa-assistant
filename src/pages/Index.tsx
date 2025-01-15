@@ -27,6 +27,7 @@ const Index = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [showUploader, setShowUploader] = useState(true);
   const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -43,7 +44,17 @@ const Index = () => {
       const url = await getAttachmentUrlByParent(document.id, config.config);
       console.log('Retrieved PDF URL:', url);
       if (url) {
-        setPdfUrl(url);
+        // Fetch the PDF with no-cors mode
+        const response = await fetch(url, {
+          mode: 'no-cors',
+          headers: {
+            'Authorization': 'Basic TWF1cmljZTpDb2RlMDAxIQ==',
+          }
+        });
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        setPdfUrl(blobUrl);
+        setPdfBlob(blob);
         setShowUploader(false);
       } else {
         toast({
