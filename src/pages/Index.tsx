@@ -24,7 +24,7 @@ const Index = () => {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [showUploader, setShowUploader] = useState(true);
-  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string>("");
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -38,13 +38,9 @@ const Index = () => {
     const config = getApiConfig();
     
     try {
-      const pdfUrl = await getAttachmentUrlByParent(document.id, config.config);
-      console.log('Retrieved PDF URL:', pdfUrl);
-      
-      // Fetch the PDF and create a blob
-      const response = await fetch(pdfUrl);
-      const blob = await response.blob();
-      setPdfBlob(blob);
+      const url = await getAttachmentUrlByParent(document.id, config.config);
+      console.log('Retrieved PDF URL:', url);
+      setPdfUrl(url);
     } catch (error) {
       console.error('Error fetching PDF:', error);
     }
@@ -83,7 +79,7 @@ const Index = () => {
         {selectedDocuments.length > 0 && (
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
-              {selectedDocument && pdfBlob && (
+              {selectedDocument && pdfUrl && (
                 <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                   <div className="mb-4 flex justify-between items-center">
                     <div className="flex gap-2">
@@ -109,7 +105,7 @@ const Index = () => {
                   
                   <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
                     <Document
-                      file={pdfBlob}
+                      file={pdfUrl}
                       onLoadSuccess={onDocumentLoadSuccess}
                       className="pdf-document"
                     >
