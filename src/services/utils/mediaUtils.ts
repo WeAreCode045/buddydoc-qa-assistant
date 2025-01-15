@@ -6,7 +6,11 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     console.log('Fetching media for document ID:', id);
     const response = await axios.get(`/media?parent=${id}`, {
       ...config,
-      withCredentials: false
+      withCredentials: false,
+      headers: {
+        ...config.headers,
+        'mode': 'no-cors'
+      }
     });
     console.log('Media response:', response.data);
     
