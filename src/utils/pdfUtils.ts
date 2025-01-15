@@ -1,12 +1,10 @@
+import { pdfjs } from 'react-pdf';
+
 export const getWorker = async () => {
   try {
-    const workerUrl = new URL(
-      'pdfjs-dist/build/pdf.worker.min.js',
-      import.meta.url
-    ).toString();
-    return workerUrl;
+    return `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
   } catch (error) {
     console.error('Error loading PDF worker:', error);
-    return `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+    throw new Error('Failed to load PDF worker');
   }
 };
