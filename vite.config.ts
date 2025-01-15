@@ -27,12 +27,12 @@ export default defineConfig(({ mode }) => ({
       ],
       output: {
         manualChunks: {
-          pdfjs: ['pdfjs-dist']
+          pdfjs: ['pdfjs-dist', 'react-pdf']
         }
       }
     },
   },
   optimizeDeps: {
-    include: ['axios', 'pdfjs-dist']
+    include: ['axios', 'pdfjs-dist', 'react-pdf']
   },
 }));

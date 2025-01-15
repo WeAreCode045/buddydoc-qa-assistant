@@ -1,5 +1,5 @@
 import { useState } from "react";
-import * as pdfjsLib from 'pdfjs-dist';
+import { Document, Page, pdfjs } from 'react-pdf/dist/umd/entry.webpack';
 import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,11 @@ import { useNavigate } from "react-router-dom";
 import { WPDocument } from "../services/wordpressApi";
 import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { getWorker } from "../utils/pdfUtils";
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = getWorker();
+pdfjs.GlobalWorkerOptions.workerSrc = getWorker();
 
 const Index = () => {
   const navigate = useNavigate();
