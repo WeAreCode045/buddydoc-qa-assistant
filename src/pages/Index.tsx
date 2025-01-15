@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page, pdfjs } from "react-pdf";
 import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,14 @@ import { useNavigate } from "react-router-dom";
 import { WPDocument } from "../services/wordpressApi";
 import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
-import { useToast } from "@/hooks/use-toast";
-import { getWorker } from "../utils/pdfUtils";
+import { useToast } from "@/components/ui/use-toast";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+// Configure PDF.js worker
+const timestamp = new Date().getTime();
+const pdfjsWorker = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js?v=${timestamp}`;
+pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const Index = () => {
   const navigate = useNavigate();
@@ -20,54 +26,25 @@ const Index = () => {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [showUploader, setShowUploader] = useState(true);
-  const [pdfContent, setPdfContent] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const initializePdfWorker = async () => {
-      const workerSrc = await getWorker();
-      pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
-    };
-    
-    initializePdfWorker();
-  }, []);
+  const [pdfBlob, setPdfBlob] = useState<string | null>(null);
 
   const fetchPdf = async (url: string) => {
     try {
-      setIsLoading(true);
-      
-      // Fix the proxy URL construction
-      const baseUrl = getApiConfig().config.baseURL.replace(/\/wp-json\/wp\/v2\/?$/, '');
-      const proxyUrl = `${baseUrl}/wp-json/pdf-proxy/v1/proxy-pdf?url=${encodeURIComponent(url)}`;
-      
-      console.log('Fetching PDF from proxy URL:', proxyUrl);
-      
-      const response = await fetch(proxyUrl, {
+      const response = await fetch(url, {
         method: 'GET',
-        credentials: 'include',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+        mode: 'cors',
       });
-
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Failed to fetch PDF');
       }
 
-      const arrayBuffer = await response.arrayBuffer();
-      const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-      
-      const pdf = await loadingTask.promise;
-      setNumPages(pdf.numPages);
-      const pages: string[] = [];
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        pages.push(pageText);
-      }
-      
-      setPdfContent(pages);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      setPdfBlob(blobUrl);
     } catch (error) {
       console.error('Error fetching PDF:', error);
       toast({
@@ -75,9 +52,21 @@ const Index = () => {
         description: "Failed to load the PDF. Please try again later.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  // Cleanup blob URL when component unmounts or when a new PDF is loaded
+  useEffect(() => {
+    return () => {
+      if (pdfBlob) {
+        URL.revokeObjectURL(pdfBlob);
+      }
+    };
+  }, [pdfBlob]);
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+    setShowUploader(false);
   };
 
   const handleFileSelect = async (document: WPDocument) => {
@@ -135,7 +124,7 @@ const Index = () => {
         {selectedDocuments.length > 0 && (
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
-              {selectedDocument && pdfContent.length > 0 && (
+              {selectedDocument && pdfBlob && (
                 <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                   <div className="mb-4 flex justify-between items-center">
                     <div className="flex gap-2">
@@ -159,16 +148,20 @@ const Index = () => {
                     </p>
                   </div>
                   
-                  <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] bg-white p-4 rounded-lg border">
-                    {isLoading ? (
-                      <div className="flex justify-center items-center h-64">
-                        <p>Loading PDF...</p>
-                      </div>
-                    ) : (
-                      <div className="whitespace-pre-wrap font-serif text-gray-800">
-                        {pdfContent[pageNumber - 1]}
-                      </div>
-                    )}
+                  <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
+                    <Document
+                      file={pdfBlob}
+                      onLoadSuccess={onDocumentLoadSuccess}
+                      className="pdf-document"
+                    >
+                      <Page 
+                        pageNumber={pageNumber}
+                        className="shadow-lg"
+                        width={Math.min(window.innerWidth * 0.6, 800)}
+                        renderTextLayer={true}
+                        renderAnnotationLayer={true}
+                      />
+                    </Document>
                   </div>
                 </div>
               )}
