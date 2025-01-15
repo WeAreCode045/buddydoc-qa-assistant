@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getApiConfig } from './apiConfig';
 
 export const getAttachmentUrlByParent = async (id: number, config: any): Promise<string> => {
   try {
@@ -10,9 +11,12 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     console.log('Media response:', response.data);
     
     if (Array.isArray(response.data) && response.data.length > 0) {
-      const pdfUrl = response.data[0].guid?.rendered || '';
-      console.log('Using direct PDF URL:', pdfUrl);
-      return pdfUrl;
+      const originalPdfUrl = response.data[0].guid?.rendered || '';
+      // Get the base API URL from config and create proxy URL
+      const apiBase = config.baseURL || '';
+      const proxyUrl = `${apiBase}/proxy-pdf?url=${encodeURIComponent(originalPdfUrl)}`;
+      console.log('Using proxied PDF URL:', proxyUrl);
+      return proxyUrl;
     }
     
     return '';
