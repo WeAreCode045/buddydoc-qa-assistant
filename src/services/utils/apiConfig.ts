@@ -2,7 +2,7 @@ import { ApiConfig } from '../types/wordpress';
 import { getWordPressData } from '../wordpressIntegration';
 
 export const getApiConfig = (): ApiConfig => {
-  const apiUrl = localStorage.getItem('wp_api_url') || 'https://your-wordpress-site.com/wp-json/wp/v2';
+  const apiUrl = localStorage.getItem('wp_api_url') || 'https://insightvve.nl/wp-json';
   const wpData = getWordPressData();
   
   const baseDomain = apiUrl.match(/(https?:\/\/[^\/]+)/)?.[1] || '';

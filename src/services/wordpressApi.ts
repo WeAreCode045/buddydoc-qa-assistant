@@ -11,7 +11,7 @@ export const wordpressApi = {
       const { config } = getApiConfig();
       const wpData = getWordPressData();
       
-      const endpoint = '/documents';
+      const endpoint = '/wp/v2/documents';
       const targetUrl = `${config.baseURL}${endpoint}`;
       
       // Create Base64 encoded credentials
