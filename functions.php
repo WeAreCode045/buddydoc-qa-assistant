@@ -17,10 +17,6 @@ add_action('init', 'add_cors_headers');
     $body = wp_remote_retrieve_body($response);
     $content_type = wp_remote_retrieve_header($response, 'content-type');
 
-    // Ensure we're sending PDF content type
-    if (empty($content_type)) {
-        $content_type = 'application/pdf';
-    }
 
     // Set headers for PDF response
     header('Content-Type: ' . $content_type);
