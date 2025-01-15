@@ -8,6 +8,7 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
       withCredentials: false,
       headers: {
         ...config.headers,
+        'mode': 'no-cors'
       }
     });
     console.log('Media response:', response.data);
