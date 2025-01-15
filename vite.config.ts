@@ -21,7 +21,10 @@ export default defineConfig(({ mode }) => ({
   build: {
     sourcemap: true,
     rollupOptions: {
-      external: ['pdfjs-dist/build/pdf.worker.entry'],
+      external: [
+        'pdfjs-dist/legacy/build/pdf.worker.entry.js',
+        'react-pdf/node_modules/pdfjs-dist/legacy/build/pdf.worker.entry.js'
+      ],
       output: {
         manualChunks: {
           pdfjs: ['pdfjs-dist']

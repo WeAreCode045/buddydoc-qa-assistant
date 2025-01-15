@@ -10,9 +10,10 @@ import { WPDocument } from "../services/wordpressApi";
 import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
 import { useToast } from "@/components/ui/use-toast";
+import { getWorker } from "../utils/pdfUtils";
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = getWorker();
 
 const Index = () => {
   const navigate = useNavigate();
