@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { WPDocument } from "../services/wordpressApi";
 import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
@@ -30,12 +30,14 @@ const Index = () => {
 
   const storePdf = async (url: string) => {
     try {
-      const config = getApiConfig();
-      const response = await fetch(`${config.baseURL}/wp-json/pdf-proxy/v1/store-pdf`, {
+      const apiConfig = getApiConfig();
+      console.log('API Config:', apiConfig); // Debug log
+      
+      const response = await fetch(`${apiConfig.config.baseURL}/wp-json/pdf-proxy/v1/store-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...config.headers
+          ...apiConfig.config.headers
         },
         body: JSON.stringify({ url })
       });
