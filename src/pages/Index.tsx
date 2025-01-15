@@ -28,15 +28,34 @@ const Index = () => {
   const [showUploader, setShowUploader] = useState(true);
   const [pdfBlob, setPdfBlob] = useState<string | null>(null);
 
+  const storePdf = async (url: string) => {
+    try {
+      const config = getApiConfig();
+      const response = await fetch(`${config.baseURL}/wp-json/pdf-proxy/v1/store-pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...config.headers
+        },
+        body: JSON.stringify({ url })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to store PDF');
+      }
+
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Error storing PDF:', error);
+      throw error;
+    }
+  };
+
   const fetchPdf = async (url: string) => {
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
-        mode: 'cors',
-      });
+      const storedPdfUrl = await storePdf(url);
+      const response = await fetch(storedPdfUrl);
       
       if (!response.ok) {
         throw new Error('Failed to fetch PDF');
