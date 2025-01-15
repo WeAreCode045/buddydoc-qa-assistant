@@ -3,7 +3,7 @@
 function add_cors_headers() {
     header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
     
     if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
         status_header(200);
@@ -11,17 +11,24 @@ function add_cors_headers() {
     }
 }
 add_action('init', 'add_cors_headers');
+add_action('rest_api_init', 'add_cors_headers');
 
 // Add PDF download and storage endpoint
 function register_pdf_endpoints() {
     register_rest_route('pdf-proxy/v1', '/store-pdf', array(
-        'methods' => 'POST',
+        'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'store_pdf_file',
-        'permission_callback' => '__return_true'
+        'permission_callback' => '__return_true',
+        'args' => array(
+            'url' => array(
+                'required' => true,
+                'type' => 'string'
+            )
+        )
     ));
     
     register_rest_route('pdf-proxy/v1', '/get-pdf/(?P<filename>[^/]+)', array(
-        'methods' => 'GET',
+        'methods' => WP_REST_Server::READABLE,
         'callback' => 'get_stored_pdf',
         'permission_callback' => '__return_true'
     ));
