@@ -11,8 +11,11 @@ import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
 import { useToast } from "@/components/ui/use-toast";
 
+// Import worker directly from node_modules
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const Index = () => {
   const navigate = useNavigate();
