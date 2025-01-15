@@ -4,17 +4,19 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 8080
-  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
-      input: {
-        index: path.resolve(__dirname, 'src/frontend/index.html'),
-      },
+      input: path.resolve(__dirname, 'src/frontend/src/main.tsx'),
+      output: {
+        entryFileNames: 'assets/[name].js',
+        chunkFileNames: 'assets/[name].js',
+        assetFileNames: 'assets/[name].[ext]'
+      }
     },
+    manifest: true,
+    sourcemap: true
   },
   resolve: {
     alias: {
