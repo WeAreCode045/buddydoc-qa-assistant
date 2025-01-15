@@ -28,27 +28,25 @@ const Index = () => {
   const fetchPdf = async (url: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
+      
+      // Create a proxy URL to bypass CORS
+      const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+      
+      const loadingTask = pdfjsLib.getDocument({
+        url: proxyUrl,
+        withCredentials: false,
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch PDF');
-      }
 
-      const arrayBuffer = await response.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      
+      const pdf = await loadingTask.promise;
       setNumPages(pdf.numPages);
       const pages: string[] = [];
       
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
         pages.push(pageText);
       }
       
