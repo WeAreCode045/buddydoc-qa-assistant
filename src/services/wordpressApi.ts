@@ -31,11 +31,8 @@ export const wordpressApi = {
         headers: {
           ...config.headers,
           'Authorization': `Basic ${credentials}`,
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
-        withCredentials: true,
+        withCredentials: false,
       });
 
       console.log('WordPress API Response:', response.data);
