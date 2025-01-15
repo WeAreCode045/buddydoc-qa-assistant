@@ -48,6 +48,7 @@ const Index = () => {
       }
 
       const data = await response.json();
+      console.log('Store PDF response:', data); // Debug log
       return data.url;
     } catch (error) {
       console.error('Error storing PDF:', error);
@@ -58,10 +59,13 @@ const Index = () => {
   const fetchPdf = async (url: string) => {
     try {
       const storedPdfUrl = await storePdf(url);
+      console.log('Stored PDF URL:', storedPdfUrl); // Debug log
+      
+      // Fetch the stored PDF from our server
       const response = await fetch(storedPdfUrl);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch PDF');
+        throw new Error('Failed to fetch stored PDF');
       }
 
       const blob = await response.blob();
