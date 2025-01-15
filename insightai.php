@@ -51,8 +51,23 @@ function insightai_enqueue_scripts() {
     // Get plugin directory URL
     $plugin_url = plugin_dir_url(__FILE__);
     
-    // Enqueue the main assets from the app directory
-    wp_enqueue_script('insightai-main', $plugin_url . 'app/dist/assets/index.js', array(), '1.0.0', true);
+    // Enqueue the main assets from the app directory with type="module"
+    wp_enqueue_script(
+        'insightai-main',
+        $plugin_url . 'app/dist/assets/index.js',
+        array(),
+        '1.0.0',
+        true
+    );
+    
+    // Add type="module" to the script
+    add_filter('script_loader_tag', function($tag, $handle, $src) {
+        if ('insightai-main' === $handle) {
+            $tag = '<script type="module" src="' . esc_url($src) . '"></script>';
+        }
+        return $tag;
+    }, 10, 3);
+
     wp_enqueue_style('insightai-styles', $plugin_url . 'app/dist/assets/index.css', array(), '1.0.0');
 }
 add_action('admin_enqueue_scripts', 'insightai_enqueue_scripts');
