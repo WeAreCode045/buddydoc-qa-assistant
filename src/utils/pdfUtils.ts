@@ -1,7 +1,12 @@
-export const getWorker = () => {
+export const getWorker = async () => {
   try {
-    return require('react-pdf/node_modules/pdfjs-dist/legacy/build/pdf.worker.entry.js');
-  } catch {
-    return require('pdfjs-dist/legacy/build/pdf.worker.entry.js');
+    const workerUrl = new URL(
+      'pdfjs-dist/build/pdf.worker.min.js',
+      import.meta.url
+    ).toString();
+    return workerUrl;
+  } catch (error) {
+    console.error('Error loading PDF worker:', error);
+    return `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
   }
 };

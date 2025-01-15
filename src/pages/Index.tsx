@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
 import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
@@ -12,9 +12,6 @@ import { getApiConfig } from "../services/utils/apiConfig";
 import { useToast } from "@/hooks/use-toast";
 import { getWorker } from "../utils/pdfUtils";
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = getWorker();
-
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,6 +22,15 @@ const Index = () => {
   const [showUploader, setShowUploader] = useState(true);
   const [pdfContent, setPdfContent] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const initializePdfWorker = async () => {
+      const workerSrc = await getWorker();
+      pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+    };
+    
+    initializePdfWorker();
+  }, []);
 
   const fetchPdf = async (url: string) => {
     try {
