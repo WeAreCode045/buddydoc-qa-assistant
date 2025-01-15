@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Document, Page, pdfjs } from 'react-pdf/dist/umd/entry.webpack';
+import { Document, Page, pdfjs } from 'react-pdf';
 import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ const Index = () => {
       // Create a proxy URL to bypass CORS
       const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
       
-      const loadingTask = pdfjsLib.getDocument({
+      const loadingTask = pdfjs.getDocument({
         url: proxyUrl,
         withCredentials: false,
       });
