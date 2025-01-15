@@ -22,9 +22,14 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     rollupOptions: {
       external: [],
+      output: {
+        manualChunks: {
+          pdfjs: ['pdfjs-dist']
+        }
+      }
     },
   },
   optimizeDeps: {
-    include: ['axios']
+    include: ['axios', 'pdfjs-dist']
   },
 }));
