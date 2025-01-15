@@ -16,11 +16,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Define plugin constants
+define('PDF_CHAT_BUDDY_VERSION', '1.0.0');
+define('PDF_CHAT_BUDDY_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('PDF_CHAT_BUDDY_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Require core plugin files
+require_once PDF_CHAT_BUDDY_PLUGIN_DIR . 'includes/class-pdf-chat-buddy-activator.php';
+require_once PDF_CHAT_BUDDY_PLUGIN_DIR . 'includes/class-pdf-chat-buddy-db.php';
+require_once PDF_CHAT_BUDDY_PLUGIN_DIR . 'includes/class-pdf-chat-buddy-api.php';
+require_once PDF_CHAT_BUDDY_PLUGIN_DIR . 'includes/class-pdf-chat-buddy-groups.php';
+
 class PDF_Chat_Buddy {
     private static $instance = null;
     private $db;
-    private $plugin_path;
-    private $plugin_url;
+    private $api;
+    private $groups;
     
     public static function get_instance() {
         if (null === self::$instance) {
@@ -30,66 +41,29 @@ class PDF_Chat_Buddy {
     }
     
     private function __construct() {
-        global $wpdb;
-        $this->db = $wpdb;
-        $this->plugin_path = plugin_dir_path(__FILE__);
-        $this->plugin_url = plugin_dir_url(__FILE__);
+        $this->db = new PDF_Chat_Buddy_DB();
+        $this->api = new PDF_Chat_Buddy_API($this->db);
+        $this->groups = new PDF_Chat_Buddy_Groups($this->db);
         
         $this->init_hooks();
-        $this->init_includes();
     }
     
     private function init_hooks() {
-        register_activation_hook(__FILE__, array($this, 'activate'));
+        register_activation_hook(__FILE__, array('PDF_Chat_Buddy_Activator', 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
         
-        add_action('bp_init', array($this, 'init_buddypress_integration'));
-        add_action('rest_api_init', array($this, 'register_rest_routes'));
+        add_action('bp_init', array($this->groups, 'init'));
+        add_action('rest_api_init', array($this->api, 'register_routes'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
-    }
-    
-    private function init_includes() {
-        require_once $this->plugin_path . 'includes/class-pdf-chat-buddy-db.php';
-        require_once $this->plugin_path . 'includes/class-pdf-chat-buddy-api.php';
-        require_once $this->plugin_path . 'includes/class-pdf-chat-buddy-groups.php';
-    }
-    
-    public function activate() {
-        require_once $this->plugin_path . 'includes/class-pdf-chat-buddy-activator.php';
-        PDF_Chat_Buddy_Activator::activate();
-    }
-    
-    public function deactivate() {
-        // Cleanup if needed
-    }
-    
-    public function init_buddypress_integration() {
-        if (!function_exists('bp_is_active')) {
-            return;
-        }
-        
-        // Add BuddyPress specific hooks
-        add_action('bp_group_documents_tab', array($this, 'render_documents_tab'));
-        bp_core_new_nav_item(array(
-            'name' => __('PDF Chat', 'pdf-chat-buddy'),
-            'slug' => 'pdf-chat',
-            'position' => 100,
-            'screen_function' => array($this, 'display_pdf_chat_screen')
-        ));
-    }
-    
-    public function register_rest_routes() {
-        $api = new PDF_Chat_Buddy_API();
-        $api->register_routes();
     }
     
     public function enqueue_scripts() {
         if (bp_is_group()) {
             wp_enqueue_script(
                 'pdf-chat-buddy',
-                $this->plugin_url . 'assets/js/pdf-chat-buddy.js',
+                PDF_CHAT_BUDDY_PLUGIN_URL . 'assets/js/pdf-chat-buddy.js',
                 array('jquery'),
-                '1.0.0',
+                PDF_CHAT_BUDDY_VERSION,
                 true
             );
             
@@ -101,13 +75,8 @@ class PDF_Chat_Buddy {
         }
     }
     
-    public function display_pdf_chat_screen() {
-        add_action('bp_template_content', array($this, 'display_pdf_chat_content'));
-        bp_core_load_template('buddypress/members/single/plugins');
-    }
-    
-    public function display_pdf_chat_content() {
-        include $this->plugin_path . 'templates/pdf-chat-content.php';
+    public function deactivate() {
+        // Cleanup if needed
     }
 }
 

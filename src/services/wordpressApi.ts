@@ -6,12 +6,14 @@ import { getWordPressData } from './wordpressIntegration';
 export type { WPDocument };
 
 export const wordpressApi = {
-  async getDocuments(): Promise<WPDocument[]> {
+  async getDocuments(groupId?: number): Promise<WPDocument[]> {
     try {
       const { config } = getApiConfig();
       const wpData = getWordPressData();
       
-      const endpoint = '/wp/v2/documents';
+      const endpoint = groupId 
+        ? `/pdf-chat-buddy/v1/documents/${groupId}`
+        : '/wp/v2/documents';
       const targetUrl = `${config.baseURL}${endpoint}`;
       
       // Create Base64 encoded credentials
@@ -40,11 +42,57 @@ export const wordpressApi = {
       return response.data.map((doc: any) => ({
         id: doc.id,
         title: {
-          rendered: doc.title.rendered
+          rendered: doc.title
         }
       }));
     } catch (error) {
       console.error('Error fetching documents:', error);
+      throw error;
+    }
+  },
+
+  async uploadDocument(groupId: number, file: File, title: string, description?: string): Promise<any> {
+    try {
+      const { config } = getApiConfig();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('title', title);
+      if (description) {
+        formData.append('description', description);
+      }
+
+      const response = await axios.post(
+        `${config.baseURL}/pdf-chat-buddy/v1/documents/${groupId}`,
+        formData,
+        {
+          headers: {
+            ...config.headers,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+  },
+
+  async deleteDocument(groupId: number, documentId: number): Promise<any> {
+    try {
+      const { config } = getApiConfig();
+      
+      const response = await axios.delete(
+        `${config.baseURL}/pdf-chat-buddy/v1/documents/${groupId}/${documentId}`,
+        {
+          headers: config.headers,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting document:', error);
       throw error;
     }
   }

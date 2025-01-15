@@ -1,20 +1,20 @@
 <?php
 class PDF_Chat_Buddy_DB {
-    private $db;
+    private $wpdb;
     private $documents_table;
     private $access_log_table;
     
     public function __construct() {
         global $wpdb;
-        $this->db = $wpdb;
-        $this->documents_table = $this->db->prefix . 'pdf_chat_documents';
-        $this->access_log_table = $this->db->prefix . 'pdf_chat_access_log';
+        $this->wpdb = $wpdb;
+        $this->documents_table = $wpdb->prefix . 'pdf_chat_documents';
+        $this->access_log_table = $wpdb->prefix . 'pdf_chat_access_log';
     }
     
     public function create_tables() {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         
-        $charset_collate = $this->db->get_charset_collate();
+        $charset_collate = $this->wpdb->get_charset_collate();
         
         $sql = "CREATE TABLE IF NOT EXISTS {$this->documents_table} (
             id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -47,8 +47,8 @@ class PDF_Chat_Buddy_DB {
     }
     
     public function get_group_documents($group_id) {
-        return $this->db->get_results(
-            $this->db->prepare(
+        return $this->wpdb->get_results(
+            $this->wpdb->prepare(
                 "SELECT * FROM {$this->documents_table} WHERE group_id = %d",
                 $group_id
             )
@@ -56,11 +56,11 @@ class PDF_Chat_Buddy_DB {
     }
     
     public function add_document($data) {
-        return $this->db->insert($this->documents_table, $data);
+        return $this->wpdb->insert($this->documents_table, $data);
     }
     
     public function delete_document($id, $group_id) {
-        return $this->db->delete(
+        return $this->wpdb->delete(
             $this->documents_table,
             array('id' => $id, 'group_id' => $group_id),
             array('%d', '%d')
@@ -68,7 +68,7 @@ class PDF_Chat_Buddy_DB {
     }
     
     public function log_access($document_id, $user_id) {
-        return $this->db->insert(
+        return $this->wpdb->insert(
             $this->access_log_table,
             array(
                 'document_id' => $document_id,

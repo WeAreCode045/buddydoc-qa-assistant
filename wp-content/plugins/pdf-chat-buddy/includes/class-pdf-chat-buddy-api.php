@@ -1,13 +1,14 @@
 <?php
 class PDF_Chat_Buddy_API {
-    private $namespace = 'pdf-chat-buddy/v1';
     private $db;
+    private $namespace = 'pdf-chat-buddy/v1';
     
-    public function __construct() {
-        $this->db = new PDF_Chat_Buddy_DB();
+    public function __construct($db) {
+        $this->db = $db;
     }
     
     public function register_routes() {
+        // Get group documents
         register_rest_route($this->namespace, '/documents/(?P<group_id>\d+)', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_documents'),
@@ -21,12 +22,14 @@ class PDF_Chat_Buddy_API {
             )
         ));
         
+        // Upload document
         register_rest_route($this->namespace, '/documents/(?P<group_id>\d+)', array(
             'methods' => 'POST',
-            'callback' => array($this, 'add_document'),
+            'callback' => array($this, 'upload_document'),
             'permission_callback' => array($this, 'check_group_admin_permissions')
         ));
         
+        // Delete document
         register_rest_route($this->namespace, '/documents/(?P<group_id>\d+)/(?P<document_id>\d+)', array(
             'methods' => 'DELETE',
             'callback' => array($this, 'delete_document'),
@@ -51,27 +54,50 @@ class PDF_Chat_Buddy_API {
         return new WP_REST_Response($documents, 200);
     }
     
-    public function add_document($request) {
+    public function upload_document($request) {
         $group_id = $request->get_param('group_id');
-        $attachment_id = $request->get_param('attachment_id');
-        $title = $request->get_param('title');
-        $description = $request->get_param('description');
+        $files = $request->get_file_params();
         
-        $data = array(
-            'group_id' => $group_id,
-            'wp_attachment_id' => $attachment_id,
-            'title' => $title,
-            'description' => $description,
-            'uploaded_by' => get_current_user_id()
-        );
-        
-        $result = $this->db->add_document($data);
-        
-        if ($result) {
-            return new WP_REST_Response(array('message' => 'Document added successfully'), 201);
+        if (empty($files['file'])) {
+            return new WP_Error('no_file', 'No file was uploaded', array('status' => 400));
         }
         
-        return new WP_REST_Response(array('message' => 'Failed to add document'), 500);
+        $file = $files['file'];
+        $upload_overrides = array('test_form' => false);
+        
+        // Handle the upload using WordPress
+        $movefile = wp_handle_upload($file, $upload_overrides);
+        
+        if ($movefile && !isset($movefile['error'])) {
+            // Create attachment
+            $attachment = array(
+                'post_mime_type' => $movefile['type'],
+                'post_title' => sanitize_file_name($file['name']),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+            
+            $attach_id = wp_insert_attachment($attachment, $movefile['file']);
+            
+            if ($attach_id) {
+                // Add document to our custom table
+                $document_data = array(
+                    'group_id' => $group_id,
+                    'wp_attachment_id' => $attach_id,
+                    'title' => sanitize_text_field($file['name']),
+                    'uploaded_by' => get_current_user_id()
+                );
+                
+                $this->db->add_document($document_data);
+                
+                return new WP_REST_Response(array(
+                    'message' => 'Document uploaded successfully',
+                    'attachment_id' => $attach_id
+                ), 201);
+            }
+        }
+        
+        return new WP_Error('upload_error', 'Failed to upload file', array('status' => 500));
     }
     
     public function delete_document($request) {
@@ -81,9 +107,11 @@ class PDF_Chat_Buddy_API {
         $result = $this->db->delete_document($document_id, $group_id);
         
         if ($result) {
-            return new WP_REST_Response(array('message' => 'Document deleted successfully'), 200);
+            return new WP_REST_Response(array(
+                'message' => 'Document deleted successfully'
+            ), 200);
         }
         
-        return new WP_REST_Response(array('message' => 'Failed to delete document'), 500);
+        return new WP_Error('delete_error', 'Failed to delete document', array('status' => 500));
     }
 }
