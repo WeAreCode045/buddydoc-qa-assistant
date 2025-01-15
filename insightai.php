@@ -42,9 +42,20 @@ function insightai_render_app() {
     <?php
 }
 
-// Enqueue scripts and styles
+// Add shortcode
+function insightai_shortcode() {
+    ob_start();
+    insightai_render_app();
+    return ob_get_clean();
+}
+add_shortcode('insightai', 'insightai_shortcode');
+
+// Enqueue scripts and styles for both admin and frontend
 function insightai_enqueue_scripts() {
-    if (!isset($_GET['page']) || $_GET['page'] !== 'insightai') {
+    // Check if we're on the admin page or if the shortcode is present in the content
+    global $post;
+    if (!is_admin() && (!$post || !has_shortcode($post->post_content, 'insightai')) && 
+        (!isset($_GET['page']) || $_GET['page'] !== 'insightai')) {
         return;
     }
 
@@ -70,6 +81,7 @@ function insightai_enqueue_scripts() {
 
     wp_enqueue_style('insightai-styles', $plugin_url . 'app/dist/assets/index.css', array(), '1.0.0');
 }
+add_action('wp_enqueue_scripts', 'insightai_enqueue_scripts');
 add_action('admin_enqueue_scripts', 'insightai_enqueue_scripts');
 
 // Register REST API endpoints
