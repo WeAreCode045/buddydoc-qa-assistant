@@ -12,7 +12,8 @@ export const wordpressApi = {
       const wpData = getWordPressData();
       
       const endpoint = '/documents';
-      const proxyUrl = `https://proxy.cors.sh${config.baseURL}${endpoint}`;
+      // Fix the URL construction by ensuring proper separation between proxy and target URL
+      const proxyUrl = `https://proxy.cors.sh/${config.baseURL}${endpoint}`;
       
       console.log('Fetching documents with config:', {
         url: proxyUrl,
