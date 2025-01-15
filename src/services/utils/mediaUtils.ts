@@ -11,16 +11,8 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     
     if (Array.isArray(response.data) && response.data.length > 0) {
       const pdfUrl = response.data[0].guid?.rendered || '';
-      console.log('Extracted PDF URL:', pdfUrl);
-      
-      // Remove /wp-json/wp/v2 from the baseURL to get the WordPress root URL
-      const wpRoot = config.baseURL.replace('/wp-json/wp/v2', '');
-      // Get the uploads path from the PDF URL
-      const uploadsPath = pdfUrl.split('/uploads/')[1];
-      
-      if (uploadsPath) {
-        return `${wpRoot}/wp-content/uploads/${uploadsPath}`;
-      }
+      console.log('Using direct PDF URL:', pdfUrl);
+      return pdfUrl;
     }
     
     return '';
