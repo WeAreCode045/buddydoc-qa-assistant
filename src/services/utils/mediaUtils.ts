@@ -13,9 +13,14 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
       const pdfUrl = response.data[0].guid?.rendered || '';
       console.log('Extracted PDF URL:', pdfUrl);
       
-      // Instead of returning the direct URL, return a proxied URL through our API
-      const apiBaseUrl = config.baseURL.replace('/wp/v2', '');
-      return `${apiBaseUrl}/wp-content/uploads/${pdfUrl.split('/uploads/')[1]}`;
+      // Remove /wp-json/wp/v2 from the baseURL to get the WordPress root URL
+      const wpRoot = config.baseURL.replace('/wp-json/wp/v2', '');
+      // Get the uploads path from the PDF URL
+      const uploadsPath = pdfUrl.split('/uploads/')[1];
+      
+      if (uploadsPath) {
+        return `${wpRoot}/wp-content/uploads/${uploadsPath}`;
+      }
     }
     
     return '';
