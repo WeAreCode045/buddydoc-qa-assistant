@@ -12,7 +12,7 @@ import { getApiConfig } from "../services/utils/apiConfig";
 import { useToast } from "@/components/ui/use-toast";
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 const Index = () => {
   const navigate = useNavigate();
