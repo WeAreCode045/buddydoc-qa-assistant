@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import * as pdfjsLib from 'pdfjs-dist';
 import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
@@ -11,11 +11,8 @@ import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
 import { useToast } from "@/components/ui/use-toast";
 
-// Import worker directly from node_modules
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Index = () => {
   const navigate = useNavigate();
