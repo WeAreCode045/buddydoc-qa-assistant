@@ -33,7 +33,8 @@ const Index = () => {
       const apiConfig = getApiConfig();
       console.log('API Config:', apiConfig); // Debug log
       
-      const response = await fetch(`${apiConfig.config.baseURL}/wp-json/pdf-proxy/v1/store-pdf`, {
+      // Use baseDomain instead of baseURL to avoid duplicate wp-json path
+      const response = await fetch(`${apiConfig.baseDomain}/wp-json/pdf-proxy/v1/store-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
