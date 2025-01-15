@@ -15,7 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const Index = () => {
   const navigate = useNavigate();
