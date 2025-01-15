@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getApiConfig } from './apiConfig';
 
 export const getAttachmentUrlByParent = async (id: number, config: any): Promise<string> => {
   try {
@@ -15,7 +14,9 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     console.log('Media response:', response.data);
     
     if (Array.isArray(response.data) && response.data.length > 0) {
-      const pdfUrl = response.data[0].guid?.rendered || '';
+      const mediaItem = response.data[0];
+      // Get the source URL directly from the media item
+      const pdfUrl = mediaItem.source_url || mediaItem.guid?.rendered || '';
       console.log('Retrieved PDF URL:', pdfUrl);
       return pdfUrl;
     }
@@ -23,6 +24,6 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     return '';
   } catch (error) {
     console.error(`Error fetching media for document ${id}:`, error);
-    return '';
+    throw error;
   }
 };

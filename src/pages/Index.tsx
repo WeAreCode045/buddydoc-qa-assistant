@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { WPDocument } from "../services/wordpressApi";
 import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
+import { useToast } from "@/components/ui/use-toast";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
@@ -19,6 +20,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedDocuments, setSelectedDocuments] = useState<WPDocument[]>([]);
   const [selectedDocument, setSelectedDocument] = useState<WPDocument | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
@@ -40,9 +42,23 @@ const Index = () => {
     try {
       const url = await getAttachmentUrlByParent(document.id, config.config);
       console.log('Retrieved PDF URL:', url);
-      setPdfUrl(url);
+      if (url) {
+        setPdfUrl(url);
+        setShowUploader(false);
+      } else {
+        toast({
+          title: "Error",
+          description: "Could not find PDF attachment for this document.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error('Error fetching PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load the PDF. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
