@@ -12,13 +12,18 @@ export const wordpressApi = {
       const wpData = getWordPressData();
       
       const endpoint = '/documents';
-      // Fix the URL construction by ensuring proper separation between proxy and target URL
       const proxyUrl = `https://proxy.cors.sh/${config.baseURL}${endpoint}`;
+      
+      // Create Base64 encoded credentials
+      const username = localStorage.getItem('wp_username') || '';
+      const password = localStorage.getItem('wp_password') || '';
+      const credentials = btoa(`${username}:${password}`);
       
       console.log('Fetching documents with config:', {
         url: proxyUrl,
         headers: {
           ...config.headers,
+          'Authorization': `Basic ${credentials}`,
           'x-cors-api-key': 'temp_f44444444444444444444444444444444'
         }
       });
@@ -26,6 +31,7 @@ export const wordpressApi = {
       const response = await axios.get(proxyUrl, {
         headers: {
           ...config.headers,
+          'Authorization': `Basic ${credentials}`,
           'x-cors-api-key': 'temp_f44444444444444444444444444444444'
         },
         withCredentials: false,
