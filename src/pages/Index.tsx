@@ -43,16 +43,21 @@ const Index = () => {
     try {
       const url = await getAttachmentUrlByParent(document.id, config.config);
       console.log('Retrieved PDF URL:', url);
+      
       if (url) {
-        // Fetch the PDF with no-cors mode
-        const response = await fetch(url, {
-          mode: 'no-cors',
-          headers: {
-            'Authorization': 'Basic TWF1cmljZTpDb2RlMDAxIQ==',
-          }
-        });
+        // Use a CORS proxy service
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        
+        const response = await fetch(proxyUrl);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
+        console.log('Created blob URL:', blobUrl);
+        
         setPdfUrl(blobUrl);
         setPdfBlob(blob);
         setShowUploader(false);
