@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import DocumentUploader from "../components/DocumentUploader";
 import QuestionPanel from "../components/QuestionPanel";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { WPDocument } from "../services/wordpressApi";
 import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
 import { getApiConfig } from "../services/utils/apiConfig";
+import { useToast } from "@/components/ui/use-toast";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
@@ -19,12 +20,49 @@ pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedDocuments, setSelectedDocuments] = useState<WPDocument[]>([]);
   const [selectedDocument, setSelectedDocument] = useState<WPDocument | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [showUploader, setShowUploader] = useState(true);
-  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdfBlob, setPdfBlob] = useState<string | null>(null);
+
+  const fetchPdf = async (url: string) => {
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+        mode: 'cors',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch PDF');
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      setPdfBlob(blobUrl);
+    } catch (error) {
+      console.error('Error fetching PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load the PDF. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Cleanup blob URL when component unmounts or when a new PDF is loaded
+  useEffect(() => {
+    return () => {
+      if (pdfBlob) {
+        URL.revokeObjectURL(pdfBlob);
+      }
+    };
+  }, [pdfBlob]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -40,9 +78,16 @@ const Index = () => {
     try {
       const url = await getAttachmentUrlByParent(document.id, config.config);
       console.log('Retrieved PDF URL:', url);
-      setPdfUrl(url);
+      if (url) {
+        await fetchPdf(url);
+      }
     } catch (error) {
       console.error('Error fetching PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load the document. Please try again later.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -79,7 +124,7 @@ const Index = () => {
         {selectedDocuments.length > 0 && (
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
-              {selectedDocument && pdfUrl && (
+              {selectedDocument && pdfBlob && (
                 <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                   <div className="mb-4 flex justify-between items-center">
                     <div className="flex gap-2">
@@ -105,7 +150,7 @@ const Index = () => {
                   
                   <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
                     <Document
-                      file={pdfUrl}
+                      file={pdfBlob}
                       onLoadSuccess={onDocumentLoadSuccess}
                       className="pdf-document"
                     >
