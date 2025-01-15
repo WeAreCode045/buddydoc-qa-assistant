@@ -12,15 +12,21 @@ export const wordpressApi = {
       const wpData = getWordPressData();
       
       const endpoint = '/documents';
+      const proxyUrl = `https://proxy.cors.sh${config.baseURL}${endpoint}`;
       
       console.log('Fetching documents with config:', {
-        url: `${config.baseURL}${endpoint}`,
-        headers: config.headers
+        url: proxyUrl,
+        headers: {
+          ...config.headers,
+          'x-cors-api-key': 'temp_f44444444444444444444444444444444'
+        }
       });
 
-      const response = await axios.get(endpoint, {
-        baseURL: config.baseURL,
-        headers: config.headers,
+      const response = await axios.get(proxyUrl, {
+        headers: {
+          ...config.headers,
+          'x-cors-api-key': 'temp_f44444444444444444444444444444444'
+        },
         withCredentials: false,
       });
 
