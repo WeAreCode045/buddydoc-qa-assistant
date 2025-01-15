@@ -36,8 +36,11 @@ const Index = () => {
     try {
       setIsLoading(true);
       
-      // Use the proxy endpoint
-      const proxyUrl = `${getApiConfig().config.baseURL}/wp-json/pdf-proxy/v1/proxy-pdf?url=${encodeURIComponent(url)}`;
+      // Fix the proxy URL construction
+      const baseUrl = getApiConfig().config.baseURL.replace(/\/wp-json\/wp\/v2\/?$/, '');
+      const proxyUrl = `${baseUrl}/wp-json/pdf-proxy/v1/proxy-pdf?url=${encodeURIComponent(url)}`;
+      
+      console.log('Fetching PDF from proxy URL:', proxyUrl);
       
       const response = await fetch(proxyUrl, {
         method: 'GET',
