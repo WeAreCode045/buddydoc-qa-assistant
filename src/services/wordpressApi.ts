@@ -12,7 +12,7 @@ export const wordpressApi = {
       const wpData = getWordPressData();
       
       const endpoint = '/documents';
-      const proxyUrl = `https://proxy.cors.sh/${config.baseURL}${endpoint}`;
+      const targetUrl = `${config.baseURL}${endpoint}`;
       
       // Create Base64 encoded credentials
       const username = localStorage.getItem('wp_username') || '';
@@ -20,21 +20,22 @@ export const wordpressApi = {
       const credentials = btoa(`${username}:${password}`);
       
       console.log('Fetching documents with config:', {
-        url: proxyUrl,
+        url: targetUrl,
         headers: {
           ...config.headers,
           'Authorization': `Basic ${credentials}`,
-          'x-cors-api-key': 'temp_f44444444444444444444444444444444'
         }
       });
 
-      const response = await axios.get(proxyUrl, {
+      const response = await axios.get(targetUrl, {
         headers: {
           ...config.headers,
           'Authorization': `Basic ${credentials}`,
-          'x-cors-api-key': 'temp_f44444444444444444444444444444444'
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
-        withCredentials: false,
+        withCredentials: true,
       });
 
       console.log('WordPress API Response:', response.data);
