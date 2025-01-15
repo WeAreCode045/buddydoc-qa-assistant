@@ -7,10 +7,12 @@ import { Separator } from "@/components/ui/separator";
 import { WPDocument } from "../services/wordpressApi";
 import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getAttachmentUrlByParent } from "../services/utils/mediaUtils";
+import { getApiConfig } from "../services/utils/apiConfig";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-// Configure PDF.js worker with cache busting
+// Configure PDF.js worker
 const timestamp = new Date().getTime();
 const pdfjsWorker = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js?v=${timestamp}`;
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
@@ -29,10 +31,22 @@ const Index = () => {
     setShowUploader(false);
   };
 
-  const handleFileSelect = (document: WPDocument) => {
+  const handleFileSelect = async (document: WPDocument) => {
     setSelectedDocuments(prev => [...prev, document]);
     setSelectedDocument(document);
-    setShowUploader(false);
+    
+    // Get the API config for making the media request
+    const config = getApiConfig();
+    
+    try {
+      // Fetch the PDF URL using the document ID
+      const mediaUrl = await getAttachmentUrlByParent(document.id, config.config);
+      console.log('Retrieved PDF URL:', mediaUrl);
+      setPdfUrl(mediaUrl);
+      setShowUploader(false);
+    } catch (error) {
+      console.error('Error fetching PDF URL:', error);
+    }
   };
 
   return (
@@ -53,72 +67,71 @@ const Index = () => {
           </Button>
         </div>
 
-        {showUploader ? (
-          <DocumentUploader onFileSelect={handleFileSelect} />
-        ) : (
-          <Button 
-            variant="outline"
-            onClick={() => setShowUploader(true)}
-            className="mb-4"
-          >
-            Select More Documents
-          </Button>
-        )}
+      {showUploader ? (
+        <DocumentUploader onFileSelect={handleFileSelect} />
+      ) : (
+        <Button 
+          variant="outline"
+          onClick={() => setShowUploader(true)}
+          className="mb-4"
+        >
+          Select More Documents
+        </Button>
+      )}
 
-        {selectedDocuments.length > 0 && (
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="flex-1">
-              {selectedDocument && pdfUrl && (
-                <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
-                  <div className="mb-4 flex justify-between items-center">
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
-                        disabled={pageNumber <= 1}
-                      >
-                        Previous
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
-                        disabled={pageNumber >= numPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Page {pageNumber} of {numPages}
-                    </p>
-                  </div>
-                  
-                  <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
-                    <Document
-                      file={pdfUrl}
-                      onLoadSuccess={onDocumentLoadSuccess}
-                      className="pdf-document"
+      {selectedDocuments.length > 0 && (
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-1">
+            {selectedDocument && pdfUrl && (
+              <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+                <div className="mb-4 flex justify-between items-center">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
+                      disabled={pageNumber <= 1}
                     >
-                      <Page 
-                        pageNumber={pageNumber}
-                        className="shadow-lg"
-                        width={Math.min(window.innerWidth * 0.6, 800)}
-                        renderTextLayer={true}
-                        renderAnnotationLayer={true}
-                      />
-                    </Document>
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
+                      disabled={pageNumber >= numPages}
+                    >
+                      Next
+                    </Button>
                   </div>
+                  <p className="text-sm text-gray-600">
+                    Page {pageNumber} of {numPages}
+                  </p>
                 </div>
-              )}
-            </div>
-
-            <Separator orientation="vertical" className="hidden lg:block" />
-
-            <div className="lg:w-1/3">
-              <QuestionPanel selectedDocuments={selectedDocuments} />
-            </div>
+                
+                <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
+                  <Document
+                    file={pdfUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    className="pdf-document"
+                  >
+                    <Page 
+                      pageNumber={pageNumber}
+                      className="shadow-lg"
+                      width={Math.min(window.innerWidth * 0.6, 800)}
+                      renderTextLayer={true}
+                      renderAnnotationLayer={true}
+                    />
+                  </Document>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+          <Separator orientation="vertical" className="hidden lg:block" />
+
+          <div className="lg:w-1/3">
+            <QuestionPanel selectedDocuments={selectedDocuments} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
