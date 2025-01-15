@@ -36,14 +36,21 @@ const Index = () => {
     try {
       setIsLoading(true);
       
-      // Create a proxy URL to bypass CORS
-      const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
-      
-      const loadingTask = pdfjs.getDocument({
-        url: proxyUrl,
-        withCredentials: false,
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+        credentials: 'include'
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+      
       const pdf = await loadingTask.promise;
       setNumPages(pdf.numPages);
       const pages: string[] = [];
@@ -58,7 +65,6 @@ const Index = () => {
       }
       
       setPdfContent(pages);
-      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching PDF:', error);
       toast({
@@ -66,6 +72,7 @@ const Index = () => {
         description: "Failed to load the PDF. Please try again later.",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
