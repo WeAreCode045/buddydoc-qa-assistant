@@ -21,9 +21,7 @@ function register_pdf_proxy_endpoint() {
     register_rest_route('pdf-proxy/v1', '/proxy-pdf', array(
         'methods' => 'GET',
         'callback' => 'proxy_pdf_file',
-        'permission_callback' => function() {
-            return current_user_can('read');
-        }
+        'permission_callback' => '__return_true' // Allow public access
     ));
 }
 add_action('rest_api_init', 'register_pdf_proxy_endpoint');

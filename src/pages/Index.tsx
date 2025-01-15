@@ -36,12 +36,12 @@ const Index = () => {
     try {
       setIsLoading(true);
       
-      const response = await fetch(url, {
+      // Use the proxy endpoint
+      const proxyUrl = `${getApiConfig().config.baseURL}/wp-json/pdf-proxy/v1/proxy-pdf?url=${encodeURIComponent(url)}`;
+      
+      const response = await fetch(proxyUrl, {
         method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (!response.ok) {
