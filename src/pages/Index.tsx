@@ -45,10 +45,15 @@ const Index = () => {
       console.log('Retrieved PDF URL:', url);
       
       if (url) {
-        // Use a CORS proxy service
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        // Use cors.sh as proxy with appropriate headers
+        const proxyUrl = `https://proxy.cors.sh/${url}`;
         
-        const response = await fetch(proxyUrl);
+        const response = await fetch(proxyUrl, {
+          headers: {
+            'x-cors-api-key': 'temp_f44444444444444444444444444444444',
+            'Authorization': 'Basic TWF1cmljZTpDb2RlMDAxIQ=='
+          }
+        });
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
