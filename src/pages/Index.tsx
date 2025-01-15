@@ -67,71 +67,72 @@ const Index = () => {
           </Button>
         </div>
 
-      {showUploader ? (
-        <DocumentUploader onFileSelect={handleFileSelect} />
-      ) : (
-        <Button 
-          variant="outline"
-          onClick={() => setShowUploader(true)}
-          className="mb-4"
-        >
-          Select More Documents
-        </Button>
-      )}
+        {showUploader ? (
+          <DocumentUploader onFileSelect={handleFileSelect} />
+        ) : (
+          <Button 
+            variant="outline"
+            onClick={() => setShowUploader(true)}
+            className="mb-4"
+          >
+            Select More Documents
+          </Button>
+        )}
 
-      {selectedDocuments.length > 0 && (
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-1">
-            {selectedDocument && pdfUrl && (
-              <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
-                <div className="mb-4 flex justify-between items-center">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
-                      disabled={pageNumber <= 1}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
-                      disabled={pageNumber >= numPages}
-                    >
-                      Next
-                    </Button>
+        {selectedDocuments.length > 0 && (
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex-1">
+              {selectedDocument && pdfUrl && (
+                <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+                  <div className="mb-4 flex justify-between items-center">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
+                        disabled={pageNumber <= 1}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
+                        disabled={pageNumber >= numPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Page {pageNumber} of {numPages}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Page {pageNumber} of {numPages}
-                  </p>
+                  
+                  <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
+                    <Document
+                      file={pdfUrl}
+                      onLoadSuccess={onDocumentLoadSuccess}
+                      className="pdf-document"
+                    >
+                      <Page 
+                        pageNumber={pageNumber}
+                        className="shadow-lg"
+                        width={Math.min(window.innerWidth * 0.6, 800)}
+                        renderTextLayer={true}
+                        renderAnnotationLayer={true}
+                      />
+                    </Document>
+                  </div>
                 </div>
-                
-                <div className="pdf-container overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start">
-                  <Document
-                    file={pdfUrl}
-                    onLoadSuccess={onDocumentLoadSuccess}
-                    className="pdf-document"
-                  >
-                    <Page 
-                      pageNumber={pageNumber}
-                      className="shadow-lg"
-                      width={Math.min(window.innerWidth * 0.6, 800)}
-                      renderTextLayer={true}
-                      renderAnnotationLayer={true}
-                    />
-                  </Document>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <Separator orientation="vertical" className="hidden lg:block" />
+            <Separator orientation="vertical" className="hidden lg:block" />
 
-          <div className="lg:w-1/3">
-            <QuestionPanel selectedDocuments={selectedDocuments} />
+            <div className="lg:w-1/3">
+              <QuestionPanel selectedDocuments={selectedDocuments} />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
