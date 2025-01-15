@@ -14,7 +14,7 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
       const originalPdfUrl = response.data[0].guid?.rendered || '';
       // Get the base API URL from config and create proxy URL
       const apiBase = config.baseURL || '';
-      const proxyUrl = `${apiBase}/proxy-pdf?url=${encodeURIComponent(originalPdfUrl)}`;
+      const proxyUrl = `${apiBase}/pdf-proxy/v1/proxy-pdf?url=${encodeURIComponent(originalPdfUrl)}`;
       console.log('Using proxied PDF URL:', proxyUrl);
       return proxyUrl;
     }

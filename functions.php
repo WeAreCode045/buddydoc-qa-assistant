@@ -14,7 +14,7 @@ add_action('init', 'add_cors_headers');
 
 // Add PDF proxy endpoint
 function register_pdf_proxy_endpoint() {
-    register_rest_route('wp/v2', '/proxy-pdf', array(
+    register_rest_route('pdf-proxy/v1', '/proxy-pdf', array(
         'methods' => 'GET',
         'callback' => 'proxy_pdf_file',
         'permission_callback' => '__return_true'
