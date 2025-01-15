@@ -21,17 +21,3 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     return '';
   }
 };
-
-export const fetchPdfAsBlob = async (url: string, config: any): Promise<Blob> => {
-  try {
-    const response = await axios.get(url, {
-      ...config,
-      responseType: 'blob',
-      withCredentials: false
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching PDF:', error);
-    throw error;
-  }
-};
