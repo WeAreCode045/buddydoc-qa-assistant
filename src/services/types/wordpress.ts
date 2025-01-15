@@ -3,6 +3,7 @@ export interface WPDocument {
   title: {
     rendered: string;
   };
+  group_id?: number;
 }
 
 export interface ApiConfig {

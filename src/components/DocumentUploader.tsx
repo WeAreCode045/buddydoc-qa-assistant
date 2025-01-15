@@ -4,6 +4,7 @@ import { wordpressApi, WPDocument } from "../services/wordpressApi";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
+import { getWordPressData } from "../services/wordpressIntegration";
 
 interface DocumentUploaderProps {
   onFileSelect: (document: WPDocument) => void;
@@ -14,12 +15,14 @@ const DocumentUploader = ({ onFileSelect }: DocumentUploaderProps) => {
   const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const wpData = getWordPressData();
 
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
         setIsLoading(true);
-        const docs = await wordpressApi.getDocuments();
+        const groupId = wpData.groupId ? parseInt(wpData.groupId) : undefined;
+        const docs = await wordpressApi.getDocuments(groupId);
         console.log('Fetched documents:', docs);
         setDocuments(docs);
       } catch (error) {
@@ -35,7 +38,7 @@ const DocumentUploader = ({ onFileSelect }: DocumentUploaderProps) => {
     };
 
     fetchDocuments();
-  }, [toast]);
+  }, [toast, wpData.groupId]);
 
   const handleDocumentSelect = (document: WPDocument) => {
     setSelectedDocuments(prev => {
@@ -73,7 +76,7 @@ const DocumentUploader = ({ onFileSelect }: DocumentUploaderProps) => {
           ))}
           {documents.length === 0 && (
             <p className="text-center text-gray-500">
-              No documents available. Please contact the administrator.
+              No documents available. Please contact the group administrator.
             </p>
           )}
         </ScrollArea>

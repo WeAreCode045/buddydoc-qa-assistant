@@ -50,7 +50,6 @@ class PDF_Chat_Buddy_API {
     public function get_documents($request) {
         $group_id = $request->get_param('group_id');
         $documents = $this->db->get_group_documents($group_id);
-        
         return new WP_REST_Response($documents, 200);
     }
     
@@ -65,11 +64,9 @@ class PDF_Chat_Buddy_API {
         $file = $files['file'];
         $upload_overrides = array('test_form' => false);
         
-        // Handle the upload using WordPress
         $movefile = wp_handle_upload($file, $upload_overrides);
         
         if ($movefile && !isset($movefile['error'])) {
-            // Create attachment
             $attachment = array(
                 'post_mime_type' => $movefile['type'],
                 'post_title' => sanitize_file_name($file['name']),
@@ -80,7 +77,6 @@ class PDF_Chat_Buddy_API {
             $attach_id = wp_insert_attachment($attachment, $movefile['file']);
             
             if ($attach_id) {
-                // Add document to our custom table
                 $document_data = array(
                     'group_id' => $group_id,
                     'wp_attachment_id' => $attach_id,

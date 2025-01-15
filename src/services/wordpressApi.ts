@@ -16,25 +16,14 @@ export const wordpressApi = {
         : '/wp/v2/documents';
       const targetUrl = `${config.baseURL}${endpoint}`;
       
-      // Create Base64 encoded credentials
-      const username = localStorage.getItem('wp_username') || '';
-      const password = localStorage.getItem('wp_password') || '';
-      const credentials = btoa(`${username}:${password}`);
-      
       console.log('Fetching documents with config:', {
         url: targetUrl,
-        headers: {
-          ...config.headers,
-          'Authorization': `Basic ${credentials}`,
-        }
+        headers: config.headers,
       });
 
       const response = await axios.get(targetUrl, {
-        headers: {
-          ...config.headers,
-          'Authorization': `Basic ${credentials}`,
-        },
-        withCredentials: false,
+        headers: config.headers,
+        withCredentials: true,
       });
 
       console.log('WordPress API Response:', response.data);
@@ -43,7 +32,8 @@ export const wordpressApi = {
         id: doc.id,
         title: {
           rendered: doc.title
-        }
+        },
+        group_id: doc.group_id
       }));
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -51,15 +41,12 @@ export const wordpressApi = {
     }
   },
 
-  async uploadDocument(groupId: number, file: File, title: string, description?: string): Promise<any> {
+  async uploadDocument(groupId: number, file: File, title: string): Promise<any> {
     try {
       const { config } = getApiConfig();
       const formData = new FormData();
       formData.append('file', file);
       formData.append('title', title);
-      if (description) {
-        formData.append('description', description);
-      }
 
       const response = await axios.post(
         `${config.baseURL}/pdf-chat-buddy/v1/documents/${groupId}`,
@@ -69,6 +56,7 @@ export const wordpressApi = {
             ...config.headers,
             'Content-Type': 'multipart/form-data',
           },
+          withCredentials: true,
         }
       );
 
@@ -87,6 +75,7 @@ export const wordpressApi = {
         `${config.baseURL}/pdf-chat-buddy/v1/documents/${groupId}/${documentId}`,
         {
           headers: config.headers,
+          withCredentials: true,
         }
       );
 
