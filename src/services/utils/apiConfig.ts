@@ -10,7 +10,6 @@ export const getApiConfig = (): ApiConfig => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Authorization': 'Basic TWF1cmljZTpDb2RlMDAxIQ=='
   };
   
   if (wpData.nonce) {
