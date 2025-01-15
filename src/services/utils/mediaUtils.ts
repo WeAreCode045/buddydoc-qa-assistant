@@ -11,9 +11,13 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     console.log('Media response:', response.data);
     
     if (Array.isArray(response.data) && response.data.length > 0) {
-      const pdfUrl = response.data[0].guid?.rendered || '';
-      console.log('Using direct PDF URL:', pdfUrl);
-      return pdfUrl;
+      const originalPdfUrl = response.data[0].guid?.rendered || '';
+      console.log('Original PDF URL:', originalPdfUrl);
+      
+      // Convert the URL to use the proxy
+      const proxyUrl = `${config.baseURL}/pdf-proxy/v1/proxy-pdf?url=${encodeURIComponent(originalPdfUrl)}`;
+      console.log('Using proxied PDF URL:', proxyUrl);
+      return proxyUrl;
     }
     
     return '';
