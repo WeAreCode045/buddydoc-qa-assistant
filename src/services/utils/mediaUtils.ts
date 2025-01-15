@@ -11,14 +11,9 @@ export const getAttachmentUrlByParent = async (id: number, config: any): Promise
     console.log('Media response:', response.data);
     
     if (Array.isArray(response.data) && response.data.length > 0) {
-      const originalPdfUrl = response.data[0].guid?.rendered || '';
-      console.log('Original PDF URL:', originalPdfUrl);
-      
-      // Convert the URL to use the proxy with the correct endpoint path
-      const proxyBaseUrl = config.baseURL.replace('/wp/v2', '');
-      const proxyUrl = `${proxyBaseUrl}/pdf-proxy/v1/proxy-pdf?url=${encodeURIComponent(originalPdfUrl)}`;
-      console.log('Using proxied PDF URL:', proxyUrl);
-      return proxyUrl;
+      const pdfUrl = response.data[0].guid?.rendered || '';
+      console.log('Retrieved PDF URL:', pdfUrl);
+      return pdfUrl;
     }
     
     return '';
