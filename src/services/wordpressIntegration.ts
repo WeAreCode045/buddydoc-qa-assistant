@@ -1,32 +1,24 @@
 interface WordPressData {
-  postId?: number;
-  userId?: number;
-  userEmail?: string;
+  userId?: string;
   userName?: string;
-  nonce?: string;
+  postId?: string;
   groupId?: string;
-  apiUrl?: string;
 }
-
-declare global {
-  interface Window {
-    wpData?: WordPressData;
-  }
-}
-
-export const getWordPressData = (): WordPressData => {
-  // When running as a WordPress plugin, this data will be injected by WordPress
-  return window.wpData || {
-    postId: undefined,
-    userId: undefined,
-    userEmail: undefined,
-    userName: undefined,
-    nonce: undefined,
-    groupId: undefined,
-    apiUrl: undefined,
-  };
-};
 
 export const isRunningInWordPress = (): boolean => {
-  return !!window.wpData;
+  return typeof window !== 'undefined' && !!(window as any).bbChatBuddy;
+};
+
+export const getWordPressData = (): WordPressData => {
+  if (!isRunningInWordPress()) {
+    return {};
+  }
+
+  const bbData = (window as any).bbChatBuddy || {};
+  return {
+    userId: bbData.current_user_id,
+    userName: bbData.current_user_name,
+    postId: bbData.current_post_id,
+    groupId: bbData.current_group_id
+  };
 };
