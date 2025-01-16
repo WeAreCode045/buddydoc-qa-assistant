@@ -3,6 +3,7 @@ interface WordPressData {
   userName?: string;
   postId?: string;
   groupId?: string;
+  nonce?: string;
 }
 
 export const isRunningInWordPress = (): boolean => {
@@ -19,6 +20,7 @@ export const getWordPressData = (): WordPressData => {
     userId: bbData.current_user_id,
     userName: bbData.current_user_name,
     postId: bbData.current_post_id,
-    groupId: bbData.current_group_id
+    groupId: bbData.current_group_id,
+    nonce: bbData.nonce
   };
 };

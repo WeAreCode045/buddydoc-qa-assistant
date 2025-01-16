@@ -13,4 +13,7 @@ export interface ApiConfig {
     withCredentials: boolean;
   };
   baseDomain: string;
+  apiUrl: string;
+  username: string;
+  password: string;
 }
