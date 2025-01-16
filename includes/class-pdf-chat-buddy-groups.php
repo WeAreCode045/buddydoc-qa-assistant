@@ -41,6 +41,3 @@ class PDF_Chat_Buddy_Groups {
         include PDF_CHAT_BUDDY_PLUGIN_DIR . 'templates/group-documents.php';
     }
 }
-```
-
-In the code above, I adjusted the `add_group_nav_item` method to use the BuddyBoss method for getting the group's permalink. The rest of the code remains the same as it is generally compatible with both BuddyPress and BuddyBoss unless different functions are specified in their API documentation. Adjustments might be necessary based on specific custom implementation
